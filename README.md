@@ -1,2 +1,2 @@
 # minali-reminder
-Minimalistig reminder app for android
+Minimalistic reminder app for android
