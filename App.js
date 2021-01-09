@@ -88,14 +88,14 @@ export default function App() {
     return (
         <NavigationContainer>
             <Drawer.Navigator 
-                initialRouteName="Home" 
+                initialRouteName="SetReminder" 
                 drawerStyle={{
                     backgroundColor: '#3C3F43',
                     color: '#fff'
                 }} 
-                drawerContent={(props) => <MinaliDrawerContent {...props} />}
+                drawerContent={(props) => <MinaliDrawerContent {...props} />} 
             >
-                <Drawer.Screen name="Home" component={HomeScreen} />
+                <Drawer.Screen options={{ title: 'Set Reminder' }} name="SetReminder" component={HomeScreen} />
                 <Drawer.Screen options={{ title: 'Details' }} name="Details" component={DetailsScreen} />
             </Drawer.Navigator>
 

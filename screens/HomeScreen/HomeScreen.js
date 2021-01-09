@@ -1,10 +1,26 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { StyleSheet, Text, View, Alert, Button, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
+import Sherlock from 'sherlockjs';
+
+function reducer(state, action) {
+    if (typeof action.type === 'undefined') {
+        return {
+            ...state,
+            ...action.value
+        };
+    }
+}
+const initialState = {
+    reminderText: '',
+    whenText: '',
+    parsedReminderDateTime: null
+};
 
 export default function HomeScreen({ navigation }) {
+    const [state, dispatcher] = useReducer(reducer, initialState);
     async function fireNotification() {
         const trigger = Date.now() + 500;
         // See: https://dev.to/chakrihacker/react-native-local-notifications-in-expo-24cm
@@ -24,20 +40,49 @@ export default function HomeScreen({ navigation }) {
     }
 
     return (
-        <View style={globalStyles.container}>
-            
-                <TextInput 
-                    style={styles.textArea} 
-                    placeholder="Reminder me..."
-                    placeholderTextColor="#ccc"
-                    multiline
-                />
-                <TextInput 
-                    style={styles.whenTextInput} 
-                    placeholder="When?" 
-                    placeholderTextColor="#ccc"
-                />
-              
+        <View style={[globalStyles.container, {paddingTop: 80}]}> 
+            <TextInput 
+                style={styles.textArea} 
+                placeholder="Reminder me..."
+                placeholderTextColor="#ccc"
+                multiline
+                autoFocus={true} 
+                value={state.reminderText}
+                onChangeText={(text) => dispatcher({value: {reminderText: text}})}
+            />
+            <TextInput 
+                style={styles.whenTextInput}  
+                placeholder="When?" 
+                placeholderTextColor="#ccc" 
+                multiline
+                value={state.whenText}
+                onChangeText={(text) => dispatcher({value: {whenText: text}})}
+            />
+            <View style={styles.dateConfirmerCon}>
+                <Text style={styles.dateConfirmerText}>{state.parsedReminderDateTime && `Reminder set on ${state.parsedReminderDateTime.toLocaleString()}`}</Text>
+            </View>  
+
+            <View style={{marginTop: 10, width:'100%'}}>         
+                <TouchableOpacity
+                    style={styles.buttons}
+                    onPress={() => {
+                        console.log(state);
+                        if (!state.reminderText.trim()) { return; }
+                        let prasedReminder = Sherlock.parse(state.reminderText);
+                        if (prasedReminder.startDate) {
+                            // console.log(prasedReminder);
+                            dispatcher({value: {parsedReminderDateTime: prasedReminder.startDate}}); 
+                        }
+                        else {
+                            dispatcher({value: {parsedReminderDateTime: null}})
+                        }                      
+                    }}
+                >
+                    <Text style={styles.buttonText}>Parse Reminder Text</Text>
+                </TouchableOpacity>
+            </View>
+
+
             <View style={{marginTop: 10, width:'100%'}}>         
                 <TouchableOpacity
                     style={styles.buttons}
@@ -47,16 +92,6 @@ export default function HomeScreen({ navigation }) {
                 >
                     <Text style={styles.buttonText}>Notify</Text>
                 </TouchableOpacity>
-
-                <View style={{ marginTop: 10 }}>
-                    <TouchableOpacity
-                        style={styles.buttons}
-                        onPress={() => navigation.navigate('Details')}
-                    >
-                        <Text style={styles.buttonText}>Details</Text>
-                    </TouchableOpacity>
-                    <Text style={{textAlign:'center', color: '#fff'}}>{new Date().toString()}</Text>
-                </View>
             </View>
         </View>
     );
@@ -65,7 +100,7 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     textArea: { 
-        minHeight: 100, 
+        minHeight: 50, 
         borderColor: 'gray', 
         borderBottomColor: '#fff',
         borderBottomWidth: 1,
@@ -87,13 +122,23 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1  
     },
     buttons: {
-        backgroundColor: '#02BC80',
-        padding: 20,
-        textAlign: 'center',
-        margin: 10
+        backgroundColor: '#ccc',
+        padding: 20,        
+        margin: 10,
+        borderRadius: 6
     },
     buttonText: {
         fontSize: 20,
-        color:'#fff'
+        textAlign: 'center',
+        color:'#fff',
+        fontWeight: 'bold'
+    },
+    dateConfirmerCon: {
+        marginTop: 5,
+        padding: 3
+    },
+    dateConfirmerText: {
+        textAlign: 'center',
+        color: '#fff'
     }
 });
