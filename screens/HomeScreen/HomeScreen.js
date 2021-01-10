@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, Alert, Keyboard, TextInput, TouchableOpacity } 
 import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
+// See: https://blog.jscrambler.com/how-to-use-react-native-asyncstorage/
+import AsyncStorage from '@react-native-community/async-storage';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -19,6 +21,8 @@ const initialState = {
     parsedReminderDateTime: null,
     infoText: ''
 };
+
+
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
@@ -67,6 +71,18 @@ export default function HomeScreen({ navigation }) {
             });
             (async () => {
                 const notificationId = await scheduleNotification(prasedReminder.startDate);
+                if (!await AsyncStorage.getItem('MinaliReminders@list')) {
+                    await AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
+                }
+                let storage = await AsyncStorage.getItem('MinaliReminders@list');
+                storage = JSON.parse(storage);
+                storage.push({
+                    reminder: state.reminderText,
+                    dateTime: prasedReminder.startDate.getTime(),
+                    recurring: false,
+                    notificationId: notificationId
+                });
+                AsyncStorage.setItem('MinaliReminders@list', JSON.stringify(storage));
                 dispatcher({
                     value: {
                         reminderText: '',
@@ -153,7 +169,7 @@ const styles = StyleSheet.create({
         padding: 20,
         margin: 10,
         borderRadius: 3,
-        width: '50%'
+        width: '80%'
     },
     buttonText: {
         fontSize: 20,

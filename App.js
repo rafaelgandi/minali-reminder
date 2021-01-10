@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Alert, Button, Keyboard } from 'react-native';
 import * as Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-community/async-storage'
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -83,6 +84,10 @@ export default function App() {
                         shouldSetBadge: true,
                     }),
                 });
+
+                if (! await AsyncStorage.getItem('MinaliReminders@list')) {
+                    AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
+                }
             })();
         }
     }, []);
