@@ -1,6 +1,6 @@
 
 import React, { useEffect, useReducer } from 'react';
-import { StyleSheet, Text, View, Alert, Button, Keyboard, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
@@ -16,81 +16,108 @@ function reducer(state, action) {
 const initialState = {
     reminderText: '',
     whenText: '',
-    parsedReminderDateTime: null
+    parsedReminderDateTime: null,
+    infoText: ''
 };
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
-    async function fireNotification() {
-        const trigger = Date.now() + 500;
+    async function scheduleNotification(date) {
+        if (!date) {
+            dispatcher({
+                value: {
+                    infoText: 'No reminder date and time set.'
+                }
+            });
+            return;
+        }
+        if (!state.reminderText.trim()) {
+            dispatcher({
+                value: {
+                    infoText: 'Please set your reminder first.'
+                }
+            });
+            return;
+        }
+        const trigger = date;
         // See: https://dev.to/chakrihacker/react-native-local-notifications-in-expo-24cm
         let notificationId = await Notifications.scheduleNotificationAsync({
             content: {
                 title: "Minali Reminder",
-                body: 'This is a static reminder for you',
+                body: state.reminderText.trim(),
             },
             trigger
-            // trigger: {
-            //     seconds: 1,
-            //     repeats: false
-            // }
         });
 
-        //console.log(notificationId);
+        console.log(notificationId);
+        return notificationId;
+    }
+
+    function onSetReminder() {
+        //console.log(state);
+        if (!state.reminderText.trim()) { return; }
+        let prasedReminder = Sherlock.parse(state.reminderText);
+        if (prasedReminder.startDate) {
+            // console.log(prasedReminder);
+            dispatcher({
+                value: {
+                    parsedReminderDateTime: prasedReminder.startDate,
+                    infoText: `Reminder will be on ${prasedReminder.startDate.toLocaleString()}`
+                }
+            });
+            (async () => {
+                const notificationId = await scheduleNotification(prasedReminder.startDate);
+                dispatcher({
+                    value: {
+                        reminderText: '',
+                        whenText: '',
+                        parsedReminderDateTime: null,
+                        infoText: `Reminder set for ${prasedReminder.startDate.toLocaleString()}` 
+                    }
+                });
+                Keyboard.dismiss();
+            })();
+
+        }
+        else {
+            dispatcher({
+                value: {
+                    parsedReminderDateTime: null,
+                    infoText: 'I can\'t seem to determine the time for the reminder.'
+                }
+            })
+        }
     }
 
     return (
-        <View style={[globalStyles.container, {paddingTop: 80}]}> 
-            <TextInput 
-                style={styles.textArea} 
-                placeholder="Reminder me..."
+        <View style={[globalStyles.container, { paddingTop: 80 }]}>
+            <TextInput
+                style={styles.textArea}
+                placeholder="Reminder..."
                 placeholderTextColor="#ccc"
                 multiline
-                autoFocus={true} 
+                autoFocus={true}
                 value={state.reminderText}
-                onChangeText={(text) => dispatcher({value: {reminderText: text}})}
+                onChangeText={(text) => dispatcher({ value: { reminderText: text } })}
             />
-            <TextInput 
-                style={styles.whenTextInput}  
-                placeholder="When?" 
-                placeholderTextColor="#ccc" 
+            <TextInput
+                style={styles.whenTextInput}
+                placeholder="When?"
+                placeholderTextColor="#ccc"
                 multiline
                 value={state.whenText}
-                onChangeText={(text) => dispatcher({value: {whenText: text}})}
+                onChangeText={(text) => dispatcher({ value: { whenText: text } })}
             />
             <View style={styles.dateConfirmerCon}>
-                <Text style={styles.dateConfirmerText}>{state.parsedReminderDateTime && `Reminder set on ${state.parsedReminderDateTime.toLocaleString()}`}</Text>
-            </View>  
-
-            <View style={{marginTop: 10, width:'100%'}}>         
-                <TouchableOpacity
-                    style={styles.buttons}
-                    onPress={() => {
-                        console.log(state);
-                        if (!state.reminderText.trim()) { return; }
-                        let prasedReminder = Sherlock.parse(state.reminderText);
-                        if (prasedReminder.startDate) {
-                            // console.log(prasedReminder);
-                            dispatcher({value: {parsedReminderDateTime: prasedReminder.startDate}}); 
-                        }
-                        else {
-                            dispatcher({value: {parsedReminderDateTime: null}})
-                        }                      
-                    }}
-                >
-                    <Text style={styles.buttonText}>Parse Reminder Text</Text>
-                </TouchableOpacity>
+                <Text style={styles.dateConfirmerText}>{state.infoText}</Text>
             </View>
 
-
-            <View style={{marginTop: 10, width:'100%'}}>         
+            <View style={{ marginTop: 10, width: '100%', flex: 1, alignItems: 'center' }}>
                 <TouchableOpacity
                     style={styles.buttons}
-                    onPress={() => {
-                        fireNotification();
-                    }}
+                    onPress={onSetReminder}
                 >
-                    <Text style={styles.buttonText}>Notify</Text>
+                    <Text style={styles.buttonText}>Set Reminder</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -99,38 +126,39 @@ export default function HomeScreen({ navigation }) {
 
 
 const styles = StyleSheet.create({
-    textArea: { 
-        minHeight: 50, 
-        borderColor: 'gray', 
+    textArea: {
+        minHeight: 50,
+        borderColor: 'gray',
         borderBottomColor: '#fff',
         borderBottomWidth: 1,
-        width: '90%', 
+        width: '90%',
         padding: 10,
         fontSize: 20,
         margin: 10,
-        color: '#fff' 
+        color: '#fff'
     },
     whenTextInput: {
         height: 50,
-        borderColor: 'gray', 
-        width: '90%', 
+        borderColor: 'gray',
+        width: '90%',
         padding: 10,
         fontSize: 20,
         margin: 10,
         color: '#fff',
         borderBottomColor: '#fff',
-        borderBottomWidth: 1  
+        borderBottomWidth: 1
     },
     buttons: {
         backgroundColor: '#ccc',
-        padding: 20,        
+        padding: 20,
         margin: 10,
-        borderRadius: 6
+        borderRadius: 3,
+        width: '50%'
     },
     buttonText: {
         fontSize: 20,
         textAlign: 'center',
-        color:'#fff',
+        color: '#fff',
         fontWeight: 'bold'
     },
     dateConfirmerCon: {

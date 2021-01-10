@@ -12,7 +12,8 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerI
 import { screenHeaderOptions } from '$styles/Global.styles.js'
 
 import HomeScreen from '$screens/HomeScreen/HomeScreen.js'
-import DetailsScreen from '$screens/DetailsScreen/DetailsScreen.js'
+import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen.js'
+import AboutScreen from '$screens/AboutScreen/AboutScreen.js'
 
 
 const Stack = createStackNavigator();
@@ -29,7 +30,7 @@ async function askNotificationPermission() {
 
 
         if (existingStatus !== "granted") {
-            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS); 
             finalStatus = status;
         }
         if (finalStatus !== "granted") {
@@ -78,8 +79,8 @@ export default function App() {
                 Notifications.setNotificationHandler({
                     handleNotification: async () => ({
                         shouldShowAlert: true,
-                        shouldPlaySound: false,
-                        shouldSetBadge: false,
+                        shouldPlaySound: true,
+                        shouldSetBadge: true,
                     }),
                 });
             })();
@@ -96,7 +97,8 @@ export default function App() {
                 drawerContent={(props) => <MinaliDrawerContent {...props} />} 
             >
                 <Drawer.Screen options={{ title: 'Set Reminder' }} name="SetReminder" component={HomeScreen} />
-                <Drawer.Screen options={{ title: 'Details' }} name="Details" component={DetailsScreen} />
+                <Drawer.Screen options={{ title: 'Reminder List' }} name="ReminderList" component={ReminderListScreen} />
+                <Drawer.Screen options={{ title: 'About' }} name="About" component={AboutScreen} />
             </Drawer.Navigator>
 
             <StatusBar style="light" />
