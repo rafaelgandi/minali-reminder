@@ -4,8 +4,7 @@ import { StyleSheet, Text, View, Alert, Keyboard, TextInput, TouchableOpacity } 
 import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
-// See: https://blog.jscrambler.com/how-to-use-react-native-asyncstorage/
-import AsyncStorage from '@react-native-community/async-storage';
+import { storeNewReminder } from '$lib/storage'
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -89,33 +88,33 @@ export default function HomeScreen({ navigation }) {
     function onSetReminder() {
         //console.log(state);
         if (!state.reminderText.trim()) { return; }
-        if (state.parsedReminderDateTime) {
+        let date = parseText(state.whenText);
+
+        if (!date) {
+            date = parseText(state.reminderText);
+        }
+
+        if (date) {
             // console.log(prasedReminder);
             dispatcher({
                 value: {
-                    infoText: `Reminder will be on ${state.parsedReminderDateTime.toLocaleString()}`
+                    infoText: `Reminder will be on ${date.toLocaleString()}`
                 }
             });
             (async () => {
-                const notificationId = await scheduleNotification(state.parsedReminderDateTime);
-                if (!await AsyncStorage.getItem('MinaliReminders@list')) {
-                    await AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
-                }
-                let storage = await AsyncStorage.getItem('MinaliReminders@list');
-                storage = JSON.parse(storage);
-                storage.push({
+                const notificationId = await scheduleNotification(date);
+                await storeNewReminder({
                     reminder: state.reminderText,
-                    dateTime: state.parsedReminderDateTime.getTime(),
+                    dateTime: date.getTime(),
                     recurring: false,
                     notificationId: notificationId
-                });
-                AsyncStorage.setItem('MinaliReminders@list', JSON.stringify(storage));  
+                }); 
                 dispatcher({
                     value: {
                         reminderText: '',
                         whenText: '',
                         parsedReminderDateTime: null,
-                        infoText: `Reminder set for ${state.parsedReminderDateTime.toLocaleString()}`
+                        infoText: `Reminder set for ${date.toLocaleString()}`
                     }
                 });
                 Keyboard.dismiss();
@@ -144,6 +143,7 @@ export default function HomeScreen({ navigation }) {
                 }
             });
         }
+        return prasedReminder.startDate;
     }
 
     return (
