@@ -26,10 +26,18 @@
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#3C3F43"
             },
-            "useNextNotificationsApi": true
+            "useNextNotificationsApi": true           
+        },
+        "androidStatusBar": {
+            "barStyle": "light-content",
+            "backgroundColor": "#3C3F43"
         },
         "web": {
-            "favicon": "./assets/favicon.png"
+            "favicon": "./assets/ic_launcher-web.png"
+        },
+        "notification": {
+            "color": "#3C3F43",
+            "icon": "./assets/minali-notif-icon.png"
         }
     }
 }

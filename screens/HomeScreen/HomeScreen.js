@@ -22,10 +22,33 @@ const initialState = {
     infoText: ''
 };
 
-
+let reminderTextThrottle = null,
+    whenTextThrottle = null,
+    throttleTimeout = 600;
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+            //const url = response.notification.request.content.data.url;
+
+            console.log(response.notification.request.content);
+            console.log(response.notification.request.identifier);
+
+            navigation.navigate('ReminderDetail', {
+                reminderText: response.notification.request.content.body,
+                notificationId: response.notification.request.identifier
+            });
+
+            // Let React Navigation handle the URL
+            //console.log(url);
+        });
+        return () => {
+            subscription.remove();
+        };
+    }, [navigation]);
+
     async function scheduleNotification(date) {
         if (!date) {
             dispatcher({
@@ -44,6 +67,12 @@ export default function HomeScreen({ navigation }) {
             return;
         }
         const trigger = date;
+
+        if (!('scheduleNotificationAsync' in Notifications)) {
+            console.log('web does not support notification');
+            return 'web-no-notification';
+        }
+
         // See: https://dev.to/chakrihacker/react-native-local-notifications-in-expo-24cm
         let notificationId = await Notifications.scheduleNotificationAsync({
             content: {
@@ -60,17 +89,15 @@ export default function HomeScreen({ navigation }) {
     function onSetReminder() {
         //console.log(state);
         if (!state.reminderText.trim()) { return; }
-        let prasedReminder = Sherlock.parse(state.reminderText);
-        if (prasedReminder.startDate) {
+        if (state.parsedReminderDateTime) {
             // console.log(prasedReminder);
             dispatcher({
                 value: {
-                    parsedReminderDateTime: prasedReminder.startDate,
-                    infoText: `Reminder will be on ${prasedReminder.startDate.toLocaleString()}`
+                    infoText: `Reminder will be on ${state.parsedReminderDateTime.toLocaleString()}`
                 }
             });
             (async () => {
-                const notificationId = await scheduleNotification(prasedReminder.startDate);
+                const notificationId = await scheduleNotification(state.parsedReminderDateTime);
                 if (!await AsyncStorage.getItem('MinaliReminders@list')) {
                     await AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
                 }
@@ -78,17 +105,17 @@ export default function HomeScreen({ navigation }) {
                 storage = JSON.parse(storage);
                 storage.push({
                     reminder: state.reminderText,
-                    dateTime: prasedReminder.startDate.getTime(),
+                    dateTime: state.parsedReminderDateTime.getTime(),
                     recurring: false,
                     notificationId: notificationId
                 });
-                AsyncStorage.setItem('MinaliReminders@list', JSON.stringify(storage));
+                AsyncStorage.setItem('MinaliReminders@list', JSON.stringify(storage));  
                 dispatcher({
                     value: {
                         reminderText: '',
                         whenText: '',
                         parsedReminderDateTime: null,
-                        infoText: `Reminder set for ${prasedReminder.startDate.toLocaleString()}` 
+                        infoText: `Reminder set for ${state.parsedReminderDateTime.toLocaleString()}`
                     }
                 });
                 Keyboard.dismiss();
@@ -105,6 +132,20 @@ export default function HomeScreen({ navigation }) {
         }
     }
 
+    function parseText(text) {
+        if (!text.trim()) { return; }
+        let prasedReminder = Sherlock.parse(text);
+        if (prasedReminder.startDate) {
+            // console.log(prasedReminder);
+            dispatcher({
+                value: {
+                    parsedReminderDateTime: prasedReminder.startDate,
+                    infoText: `Reminder will be on ${prasedReminder.startDate.toLocaleString()}`
+                }
+            });
+        }
+    }
+
     return (
         <View style={[globalStyles.container, { paddingTop: 80 }]}>
             <TextInput
@@ -114,7 +155,13 @@ export default function HomeScreen({ navigation }) {
                 multiline
                 autoFocus={true}
                 value={state.reminderText}
-                onChangeText={(text) => dispatcher({ value: { reminderText: text } })}
+                onChangeText={(text) => {
+                    dispatcher({ value: { reminderText: text } }); 
+                    clearTimeout(reminderTextThrottle);                   
+                    reminderTextThrottle = setTimeout(() => {
+                        parseText(text);
+                    }, throttleTimeout);
+                }}
             />
             <TextInput
                 style={styles.whenTextInput}
@@ -122,7 +169,13 @@ export default function HomeScreen({ navigation }) {
                 placeholderTextColor="#ccc"
                 multiline
                 value={state.whenText}
-                onChangeText={(text) => dispatcher({ value: { whenText: text } })}
+                onChangeText={(text) => {
+                    dispatcher({ value: { whenText: text }});
+                    clearTimeout(whenTextThrottle);
+                    whenTextThrottle = setTimeout(() => {
+                        parseText(text);
+                    }, throttleTimeout);
+                }}
             />
             <View style={styles.dateConfirmerCon}>
                 <Text style={styles.dateConfirmerText}>{state.infoText}</Text>
@@ -133,7 +186,7 @@ export default function HomeScreen({ navigation }) {
                     style={styles.buttons}
                     onPress={onSetReminder}
                 >
-                    <Text style={styles.buttonText}>Set Reminder</Text>
+                    <Text style={styles.buttonText}>Done</Text>
                 </TouchableOpacity>
             </View>
         </View>
