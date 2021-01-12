@@ -32,12 +32,17 @@
             "barStyle": "light-content",
             "backgroundColor": "#3C3F43"
         },
+        "androidNavigationBar": {
+            "barStyle": "light-content",
+            "backgroundColor": "#3C3F43"
+        },
         "web": {
             "favicon": "./assets/ic_launcher-web.png"
         },
         "notification": {
             "color": "#3C3F43",
             "icon": "./assets/minali-notif-icon.png"
-        }
+        },
+        "primaryColor": "#3C3F43"
     }
 }

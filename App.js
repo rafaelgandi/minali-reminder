@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 
 import { screenHeaderOptions } from '$styles/Global.styles.js'
 
@@ -19,7 +19,7 @@ import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailSc
 
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator(); 
 let firstRun = true;
 
 
