@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
 import { storeNewReminder } from '$lib/storage'
+import hdate from 'human-date';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -98,7 +99,7 @@ export default function HomeScreen({ navigation }) {
             // console.log(prasedReminder);
             dispatcher({
                 value: {
-                    infoText: `Reminder will be on ${date.toLocaleString()}`
+                    infoText: `Set for ${date.toLocaleString()}`
                 }
             });
             (async () => {
@@ -108,7 +109,7 @@ export default function HomeScreen({ navigation }) {
                     dateTime: date.getTime(),
                     recurring: false,
                     notificationId: notificationId
-                }); 
+                });
                 dispatcher({
                     value: {
                         reminderText: '',
@@ -117,6 +118,9 @@ export default function HomeScreen({ navigation }) {
                         infoText: `Reminder set for ${date.toLocaleString()}`
                     }
                 });
+                setTimeout(() => {
+                    dispatcher({ value: { infoText: '' } });
+                }, 2e3);
                 Keyboard.dismiss();
             })();
 
@@ -139,10 +143,17 @@ export default function HomeScreen({ navigation }) {
             dispatcher({
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
-                    infoText: `Reminder will be on ${prasedReminder.startDate.toLocaleString()}`
+                    infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
                 }
             });
         }
+        // else {
+        //     dispatcher({
+        //         value: {
+        //             infoText: ''
+        //         }
+        //     });
+        // }
         return prasedReminder.startDate;
     }
 
@@ -156,8 +167,8 @@ export default function HomeScreen({ navigation }) {
                 autoFocus={true}
                 value={state.reminderText}
                 onChangeText={(text) => {
-                    dispatcher({ value: { reminderText: text } }); 
-                    clearTimeout(reminderTextThrottle);                   
+                    dispatcher({ value: { reminderText: text } });
+                    clearTimeout(reminderTextThrottle);
                     reminderTextThrottle = setTimeout(() => {
                         parseText(text);
                     }, throttleTimeout);
@@ -170,7 +181,7 @@ export default function HomeScreen({ navigation }) {
                 multiline
                 value={state.whenText}
                 onChangeText={(text) => {
-                    dispatcher({ value: { whenText: text }});
+                    dispatcher({ value: { whenText: text } });
                     clearTimeout(whenTextThrottle);
                     whenTextThrottle = setTimeout(() => {
                         parseText(text);
@@ -178,7 +189,7 @@ export default function HomeScreen({ navigation }) {
                 }}
             />
             <View style={styles.dateConfirmerCon}>
-                <Text style={styles.dateConfirmerText}>{state.infoText}</Text>
+                {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
             </View>
 
             <View style={{ marginTop: 10, width: '100%', flex: 1, alignItems: 'center' }}>
@@ -236,6 +247,19 @@ const styles = StyleSheet.create({
     },
     dateConfirmerText: {
         textAlign: 'center',
-        color: '#fff'
+        color: '#fff',
+        backgroundColor: '#ED864D',
+        padding: 3,
+        paddingLeft: 8,
+        paddingRight: 8,
+        borderRadius: 2,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+        elevation: 4
     }
 });

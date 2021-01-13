@@ -20,6 +20,14 @@ const s = (() => {
         textAlign: 'center'
     };
 
+    s.headerText = { 
+        padding: 20, 
+        fontWeight: 'bold', 
+        fontSize: 30, 
+        color: '#fff',
+        textAlign: 'left' 
+    };
+
     return s;
 })();
 
