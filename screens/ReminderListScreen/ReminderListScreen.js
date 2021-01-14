@@ -25,16 +25,22 @@ export default function ReminderListScreen({ navigation }) {
         const now = new Date();
         const upcomingReminders = [];
         const doneReminders = [];
+        const recurringReminders = [];
         reminderList.forEach((r) => {
-            if (now.getTime() > r.dateTime) { // done
-                doneReminders.push(r);
+            if (r.recurring) {
+                recurringReminders.push(r);
             }
-            else { // upcoming
-                upcomingReminders.push(r);
-            }
+            else {
+                if (now.getTime() > r.dateTime) { // done
+                    doneReminders.push(r);
+                }
+                else { // upcoming
+                    upcomingReminders.push(r);
+                }
+            }           
         });
         doneReminders.reverse();
-        return [...upcomingReminders, ...doneReminders]; 
+        return [...upcomingReminders, ...recurringReminders, ...doneReminders]; 
     }
 
 
@@ -53,12 +59,12 @@ export default function ReminderListScreen({ navigation }) {
                                 {reminderList.map((r) => (
                                     <View
                                         key={r.notificationId}
-                                        style={[styles.listItem, { opacity: (now.getTime() > r.dateTime) ? 0.5 : 1 }]}
+                                        style={[styles.listItem, { opacity: (now.getTime() > r.dateTime && !r.recurring) ? 0.5 : 1 }]}
                                     >
                                         <Text style={[globalStyles.defaultTextColor, styles.primaryText]}>{r.reminder}</Text>
-                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
+                                        {!r.recurring && <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>}
                                         <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
-                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? 'Recurring' : ''}</Text>
+                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `Recurring ${r.recurring}` : ''}</Text>
                                         <View style={styles.listItemControlsCon}>
                                             <Button
                                                 color="#FF555A"

@@ -65,7 +65,28 @@ export default function HomeScreen({ navigation }) {
             });
             return;
         }
-        const trigger = date;
+
+        const trigger = (() => {
+            if (!state.recurring) {
+                return date;
+            }
+            if (state.recurring === '1min') {
+                return {
+                    repeats: true,
+                    seconds: 60
+                };
+            }
+            let tObj = {
+                repeats: true,
+                hour: date.getHours(),
+                minute: date.getMinutes()
+            };
+            if (state.recurring === 'weekly') {
+                tObj.weekday = date.getDay() + 1
+            }
+            return tObj;
+        })();
+
         let notificationId = await schedNotif({
             content: {
                 title: "Minali Reminder",
@@ -96,7 +117,7 @@ export default function HomeScreen({ navigation }) {
                 await storeNewReminder({
                     reminder: state.reminderText,
                     dateTime: date.getTime(),
-                    recurring: (state.recurring) ? numberOfSeconds[state.recurring] : false,
+                    recurring: (state.recurring) ? state.recurring : false,
                     notificationId: notificationId
                 });
                 dispatcher({
@@ -203,11 +224,9 @@ export default function HomeScreen({ navigation }) {
                         });
                     }}>
                     <Picker.Item label="One Time" value="no_recurring" />
-                    <Picker.Item label="Every 1 minute" value="1min" />
+                    <Picker.Item label="Every minute" value="1min" />
                     <Picker.Item label="Daily" value="daily" />
                     <Picker.Item label="Weekly" value="weekly" />
-                    <Picker.Item label="Monthly" value="monthly" />
-                    <Picker.Item label="Yearly" value="yearly" />
                 </Picker>
             </View>
             <View style={styles.dateConfirmerCon}>
