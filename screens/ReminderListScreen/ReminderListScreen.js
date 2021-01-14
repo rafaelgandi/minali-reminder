@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button, Text, View, SafeAreaView, ScrollView, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useIsFocused } from '@react-navigation/native';
-import globalStyles from '$styles/Global.styles.js'
-import { getAllReminders, removeReminderViaNotifId } from '$lib/storage'
+import globalStyles from '$styles/Global.styles.js';
+import { getAllReminders, removeReminderViaNotifId } from '$lib/storage';
 import hdate from 'human-date'; // See: https://www.npmjs.com/package/human-date
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
     const isFocused = useIsFocused();
-    console.log('rerender');
     useEffect(() => {
         if (isFocused) {           
             (async () => {
@@ -35,7 +34,7 @@ export default function ReminderListScreen({ navigation }) {
             }
         });
         doneReminders.reverse();
-        return [...upcomingReminders, ...doneReminders];
+        return [...upcomingReminders, ...doneReminders]; 
     }
 
 
@@ -50,7 +49,7 @@ export default function ReminderListScreen({ navigation }) {
                     if (reminderList.length) {
                         return (
                             <>
-                                <Text style={globalStyles.headerText}>Upcoming Reminders</Text>
+                                <Text style={[globalStyles.headerText, {padding: 15}]}>Upcoming Reminders</Text>
                                 {reminderList.map((r) => (
                                     <View
                                         key={r.notificationId}
@@ -58,6 +57,8 @@ export default function ReminderListScreen({ navigation }) {
                                     >
                                         <Text style={[globalStyles.defaultTextColor, styles.primaryText]}>{r.reminder}</Text>
                                         <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
+                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
+                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? 'Recurring' : ''}</Text>
                                         <View style={styles.listItemControlsCon}>
                                             <Button
                                                 color="#FF555A"
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
         color: '#ccc'
     },
     listItemControlsCon: {
-        marginTop: 10
+        marginTop: 5,
+        padding: 8
     }
 });

@@ -1,9 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Text } from 'react-native';
-import * as Constants from 'expo-constants';
-import * as Permissions from 'expo-permissions';
-import * as Notifications from 'expo-notifications';
+import { askNotificationPermission, setNotifHandler } from '$lib/notif.js';
 import AsyncStorage from '@react-native-community/async-storage'
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -19,32 +17,9 @@ import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailSc
 
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator(); 
+const Drawer = createDrawerNavigator();
 let firstRun = true;
 
-
-async function askNotificationPermission() {
-    try {
-        const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-        let finalStatus = existingStatus;
-
-        console.log(`Notifications permission: ${finalStatus}`);
-
-
-        if (existingStatus !== "granted") {
-            const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-            finalStatus = status;
-        }
-        if (finalStatus !== "granted") {
-            return false;
-        }
-        return true;
-    }
-    catch (e) {
-        console.log('A permission error occured ' + e.message);
-        return false;
-    }
-}
 
 function MinaliStackNav() {
     return (
@@ -82,13 +57,7 @@ export default function App() {
             (async () => {
                 await askNotificationPermission();
                 //console.log(Notifications);
-                Notifications.setNotificationHandler({
-                    handleNotification: async () => ({
-                        shouldShowAlert: true,
-                        shouldPlaySound: true,
-                        shouldSetBadge: true,
-                    }),
-                });
+                setNotifHandler();
                 if (! await AsyncStorage.getItem('MinaliReminders@list')) {
                     AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
                 }

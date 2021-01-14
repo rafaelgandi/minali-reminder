@@ -1,12 +1,13 @@
 
 import React, { useEffect, useReducer, useRef } from 'react';
-import { StyleSheet, Text, View, Alert, Keyboard, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
 import { storeNewReminder } from '$lib/storage'
 import hdate from 'human-date';
+import { Picker } from '@react-native-picker/picker';
+import { schedNotif } from '$lib/notif.js';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -20,7 +21,15 @@ const initialState = {
     reminderText: '',
     whenText: '',
     parsedReminderDateTime: null,
-    infoText: ''
+    infoText: '',
+    recurring: null
+};
+const numberOfSeconds = {
+    '1min': 60,
+    'daily': 86400,
+    'weekly': 604800,
+    'monthly': 2628000,
+    'yearly': 31540000
 };
 
 let reminderTextThrottle = null,
@@ -38,26 +47,6 @@ export default function HomeScreen({ navigation }) {
 
         }
     }, [isFocused]);
-
-    useEffect(() => {
-        const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-            //const url = response.notification.request.content.data.url;
-
-            console.log(response.notification.request.content);
-            console.log(response.notification.request.identifier);
-
-            navigation.navigate('ReminderDetail', {
-                reminderText: response.notification.request.content.body,
-                notificationId: response.notification.request.identifier
-            });
-
-            // Let React Navigation handle the URL
-            //console.log(url);
-        });
-        return () => {
-            subscription.remove();
-        };
-    }, [navigation]);
 
     async function scheduleNotification(date) {
         if (!date) {
@@ -77,14 +66,7 @@ export default function HomeScreen({ navigation }) {
             return;
         }
         const trigger = date;
-
-        if (!('scheduleNotificationAsync' in Notifications)) {
-            console.log('web does not support notification');
-            return 'web-no-notification';
-        }
-
-        // See: https://dev.to/chakrihacker/react-native-local-notifications-in-expo-24cm
-        let notificationId = await Notifications.scheduleNotificationAsync({
+        let notificationId = await schedNotif({
             content: {
                 title: "Minali Reminder",
                 body: state.reminderText.trim(),
@@ -106,7 +88,7 @@ export default function HomeScreen({ navigation }) {
         if (date) {
             dispatcher({
                 value: {
-                    infoText: `Set for ${date.toLocaleString()}`
+                    infoText: `Set for ${hdate.prettyPrint(date, { showTime: true })}`
                 }
             });
             (async () => {
@@ -114,7 +96,7 @@ export default function HomeScreen({ navigation }) {
                 await storeNewReminder({
                     reminder: state.reminderText,
                     dateTime: date.getTime(),
-                    recurring: false,
+                    recurring: (state.recurring) ? numberOfSeconds[state.recurring] : false,
                     notificationId: notificationId
                 });
                 dispatcher({
@@ -122,7 +104,8 @@ export default function HomeScreen({ navigation }) {
                         reminderText: '',
                         whenText: '',
                         parsedReminderDateTime: null,
-                        infoText: `Reminder set for ${date.toLocaleString()}`
+                        infoText: `Reminder set for ${hdate.prettyPrint(date, { showTime: true })}`,
+                        recurring: null
                     }
                 });
                 setTimeout(() => {
@@ -142,7 +125,8 @@ export default function HomeScreen({ navigation }) {
             dispatcher({
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
-                    infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
+                    //infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
+                    infoText: `Set for ${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
                 }
             });
             return prasedReminder.startDate;
@@ -159,7 +143,7 @@ export default function HomeScreen({ navigation }) {
     }
 
     return (
-        <View style={[globalStyles.container, { paddingTop: 80 }]}>
+        <View style={[globalStyles.container, { paddingTop: 30 }]}>
             <TextInput
                 style={styles.textArea}
                 placeholder="Reminder..."
@@ -186,15 +170,51 @@ export default function HomeScreen({ navigation }) {
                     dispatcher({ value: { whenText: text } });
                     clearTimeout(whenTextThrottle);
                     whenTextThrottle = setTimeout(() => {
+                        if (!text.trim()) {
+                            dispatcher({
+                                value: {
+                                    parsedReminderDateTime: null,
+                                    infoText: 'Unable to determine the time for the reminder.'
+                                }
+                            });
+                            return;
+                        }
                         parseText(text);
                     }, throttleTimeout);
                 }}
             />
+            <View style={styles.recurringPickerCon}>
+                <Picker
+                    selectedValue={(state.recurring) ? state.recurring : '`no_recurring`'}
+                    style={{ height: 20, width: 300, color: '#ccc'}} 
+                    onValueChange={(itemValue, itemIndex) => {
+                        if (itemValue === 'no_recurring') {
+                            dispatcher({
+                                value: {
+                                    recurring: null
+                                }
+                            });
+                            return; 
+                        }
+                        dispatcher({
+                            value: {
+                                recurring: itemValue
+                            }
+                        });
+                    }}>
+                    <Picker.Item label="One Time" value="no_recurring" />
+                    <Picker.Item label="Every 1 minute" value="1min" />
+                    <Picker.Item label="Daily" value="daily" />
+                    <Picker.Item label="Weekly" value="weekly" />
+                    <Picker.Item label="Monthly" value="monthly" />
+                    <Picker.Item label="Yearly" value="yearly" />
+                </Picker>
+            </View>
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
             </View>
 
-            <View style={{ marginTop: 10, width: '100%', flex: 1, alignItems: 'center' }}>
+            <View style={{ marginTop: 5, width: '100%', flex: 1, alignItems: 'center' }}>
                 <TouchableOpacity
                     style={styles.buttons}
                     onPress={onSetReminder}
@@ -232,7 +252,7 @@ const styles = StyleSheet.create({
     },
     buttons: {
         backgroundColor: '#ccc',
-        padding: 20,
+        padding: 15, 
         margin: 10,
         borderRadius: 3,
         width: '80%'
@@ -263,5 +283,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: 4
+    },
+    recurringPickerCon: {
+        marginTop: 5,
+        padding: 3
     }
 });
