@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Linking } from 'react-native';
+import { Text } from 'react-native';
 import * as Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';

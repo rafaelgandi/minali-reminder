@@ -1,6 +1,7 @@
 
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { StyleSheet, Text, View, Alert, Keyboard, TextInput, TouchableOpacity } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
@@ -28,6 +29,15 @@ let reminderTextThrottle = null,
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
+    const isFocused = useIsFocused();
+    const reminderTextRef = useRef(null);
+    useEffect(() => {
+        if (isFocused && reminderTextRef.current) {
+            dispatcher({ value: initialState });
+            reminderTextRef.current.focus();
+
+        }
+    }, [isFocused]);
 
     useEffect(() => {
         const subscription = Notifications.addNotificationResponseReceivedListener(response => {
@@ -87,16 +97,13 @@ export default function HomeScreen({ navigation }) {
     }
 
     function onSetReminder() {
-        //console.log(state);
         if (!state.reminderText.trim()) { return; }
         let date = parseText(state.whenText);
 
         if (!date) {
             date = parseText(state.reminderText);
         }
-
         if (date) {
-            // console.log(prasedReminder);
             dispatcher({
                 value: {
                     infoText: `Set for ${date.toLocaleString()}`
@@ -125,17 +132,9 @@ export default function HomeScreen({ navigation }) {
             })();
 
         }
-        else {
-            dispatcher({
-                value: {
-                    parsedReminderDateTime: null,
-                    infoText: 'I can\'t seem to determine the time for the reminder.'
-                }
-            })
-        }
     }
 
-    function parseText(text) {
+    function parseText(text, showUnableToParse = true) {
         if (!text.trim()) { return; }
         let prasedReminder = Sherlock.parse(text);
         if (prasedReminder.startDate) {
@@ -146,15 +145,17 @@ export default function HomeScreen({ navigation }) {
                     infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
                 }
             });
+            return prasedReminder.startDate;
         }
-        // else {
-        //     dispatcher({
-        //         value: {
-        //             infoText: ''
-        //         }
-        //     });
-        // }
-        return prasedReminder.startDate;
+        else {
+            showUnableToParse && dispatcher({
+                value: {
+                    parsedReminderDateTime: null,
+                    infoText: 'Unable to determine the time for the reminder.'
+                }
+            });
+            return;
+        }
     }
 
     return (
@@ -165,12 +166,13 @@ export default function HomeScreen({ navigation }) {
                 placeholderTextColor="#ccc"
                 multiline
                 autoFocus={true}
+                ref={reminderTextRef}
                 value={state.reminderText}
                 onChangeText={(text) => {
                     dispatcher({ value: { reminderText: text } });
                     clearTimeout(reminderTextThrottle);
                     reminderTextThrottle = setTimeout(() => {
-                        parseText(text);
+                        parseText(text, false);
                     }, throttleTimeout);
                 }}
             />

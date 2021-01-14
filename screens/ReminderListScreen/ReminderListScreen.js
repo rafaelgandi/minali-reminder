@@ -1,45 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Text, View, SafeAreaView, ScrollView, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import { getAllReminders, removeReminderViaNotifId } from '$lib/storage'
 import hdate from 'human-date'; // See: https://www.npmjs.com/package/human-date
-const now = new Date();
 
 export default function ReminderListScreen({ navigation }) {
-    const [reminderList, setReminderList] = useState([]);
+    const [reminderList, setReminderList] = useState(null);
+    const isFocused = useIsFocused();
+    console.log('rerender');
     useEffect(() => {
-        (async () => {
-            const storedReminders = await getAllReminders();
-            if (storedReminders) {
-                setReminderList(storedReminders);
+        if (isFocused) {           
+            (async () => {
+                const storedReminders = await getAllReminders();
+                if (storedReminders) {
+                    setReminderList(sortList(storedReminders));
+                }
+            })();
+        }
+    }, [isFocused]);
+
+    function sortList(reminderList) {
+        if (!reminderList.length) { return []; }
+        const now = new Date();
+        const upcomingReminders = [];
+        const doneReminders = [];
+        reminderList.forEach((r) => {
+            if (now.getTime() > r.dateTime) { // done
+                doneReminders.push(r);
             }
-        })();
-    });
-
-
-    // (2021-01-10) rTODO: List reminders from storage here
+            else { // upcoming
+                upcomingReminders.push(r);
+            }
+        });
+        doneReminders.reverse();
+        return [...upcomingReminders, ...doneReminders];
+    }
 
 
     return (
         <SafeAreaView style={[globalStyles.container, { paddingTop: 60, flex: 1 }]}>
             <ScrollView style={{ width: '100%' }}>
                 {(() => {
+                    if (reminderList === null) {
+                        return (<Text style={[globalStyles.defaultTextColor, styles.secondaryText, {fontStyle: 'italic', padding: 30}]}>Loading list...</Text>);
+                    }
+                    const now = new Date();
                     if (reminderList.length) {
-                        const upcomingReminders = [];
-                        const doneReminders = [];
-                        reminderList.forEach((r) => {
-                            if (now.getTime() > r.dateTime) { // done
-                                doneReminders.push(r);
-                            }
-                            else { // upcoming
-                                upcomingReminders.push(r);
-                            }
-                        });
                         return (
                             <>
                                 <Text style={globalStyles.headerText}>Upcoming Reminders</Text>
-                                {[...upcomingReminders, ...doneReminders].map((r) => (
+                                {reminderList.map((r) => (
                                     <View
                                         key={r.notificationId}
                                         style={[styles.listItem, { opacity: (now.getTime() > r.dateTime) ? 0.5 : 1 }]}
