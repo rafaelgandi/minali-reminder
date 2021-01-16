@@ -5,17 +5,17 @@ import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js';
 import { getAllReminders, removeReminderViaNotifId } from '$lib/storage';
 import hdate from 'human-date'; // See: https://www.npmjs.com/package/human-date
+import { recurringDate } from '$lib/recurring-friendly-date.js';
+import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
     const isFocused = useIsFocused();
     useEffect(() => {
-        if (isFocused) {           
+        if (isFocused) {
             (async () => {
                 const storedReminders = await getAllReminders();
-                if (storedReminders) {
-                    setReminderList(sortList(storedReminders));
-                }
+                setReminderList(sortList(storedReminders));
             })();
         }
     }, [isFocused]);
@@ -37,77 +37,82 @@ export default function ReminderListScreen({ navigation }) {
                 else { // upcoming
                     upcomingReminders.push(r);
                 }
-            }           
+            }
         });
         doneReminders.reverse();
-        return [...upcomingReminders, ...recurringReminders, ...doneReminders]; 
+        return [...upcomingReminders, ...recurringReminders, ...doneReminders];
     }
 
 
     return (
-        <SafeAreaView style={[globalStyles.container, { paddingTop: 60, flex: 1 }]}>
-            <ScrollView style={{ width: '100%' }}>
-                {(() => {
-                    if (reminderList === null) {
-                        return (<Text style={[globalStyles.defaultTextColor, styles.secondaryText, {fontStyle: 'italic', padding: 30}]}>Loading list...</Text>);
-                    }
-                    const now = new Date();
-                    if (reminderList.length) {
-                        return (
-                            <>
-                                <Text style={[globalStyles.headerText, {padding: 15}]}>Upcoming Reminders</Text>
-                                {reminderList.map((r) => (
-                                    <View
-                                        key={r.notificationId}
-                                        style={[styles.listItem, { opacity: (now.getTime() > r.dateTime && !r.recurring) ? 0.5 : 1 }]}
-                                    >
-                                        <Text style={[globalStyles.defaultTextColor, styles.primaryText]}>{r.reminder}</Text>
-                                        {!r.recurring && <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>}
-                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
-                                        <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `Recurring ${r.recurring}` : ''}</Text>
-                                        <View style={styles.listItemControlsCon}>
-                                            <Button
-                                                color="#FF555A"
-                                                title="Delete"
-                                                onPress={() => {
-                                                    Alert.alert("Delete Reminder", "Are you sure you want to delete this reminder?", [
-                                                        {
-                                                            text: 'Cancel',
-                                                            onPress: () => { }
-                                                        },
-                                                        {
-                                                            text: 'Delete',
-                                                            onPress: async () => {
-                                                                await removeReminderViaNotifId(r.notificationId);
-                                                                await Notifications.cancelScheduledNotificationAsync(r.notificationId);
-                                                                const storedReminders = await getAllReminders();
-                                                                setReminderList(storedReminders);
-                                                            }
-                                                        }
-                                                    ], { cancelable: false });
-                                                }}
-                                            />
-                                        </View>
-                                    </View>
-                                ))}
-                            </>
-                        );
-                    }
-                    else {
-                        return (
-                            <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent: 'center'}}>
-                                <TouchableOpacity 
-                                    style={{padding: 20, borderRadius: 100, backgroundColor: '#ccc', width:100, height: 100}} 
-                                    onPress={() => navigation.navigate('SetReminder')}
+        <MinaliContainer>
+            {(() => {
+                if (reminderList === null) {
+                    return (<Text style={[globalStyles.defaultTextColor, styles.secondaryText, { fontStyle: 'italic', padding: 30, textAlign: 'center' }]}>Loading list...</Text>);
+                }
+                const now = new Date();
+                if (reminderList.length) {
+                    return (
+                        <>
+                            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 20 }]}>Upcoming Reminders 🚀</Text>
+                            {reminderList.map((r) => (
+                                <View
+                                    key={r.notificationId}
+                                    style={[styles.listItem, { opacity: (now.getTime() > r.dateTime && !r.recurring) ? 0.5 : 1 }]}
                                 >
-                                    <Text style={{fontWeight:'bold', color: '#fff', fontSize: 40, textAlign:'center'}}>+</Text>
-                                </TouchableOpacity>
-                            </View>
-                        );
-                    }
-                })()}
-            </ScrollView>
-        </SafeAreaView>
+                                    <Text style={[globalStyles.defaultTextColor, styles.primaryText, { paddingBottom: 10 }]}>{r.reminder}</Text>
+                                    {
+                                        (r.recurring)
+                                            ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `♻️ Recurring ${r.recurring}` : ''}</Text>
+                                            : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{'⌛' + hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
+                                    }
+                                    {
+                                        (r.recurring)
+                                            ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
+                                            : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
+                                    }
+                                    <View style={styles.listItemControlsCon}>
+                                        <Button
+                                            color="#000"
+                                            title="🗑️ Delete"
+                                            onPress={() => {
+                                                Alert.alert("Delete Reminder", "Are you sure you want to delete this reminder?", [
+                                                    {
+                                                        text: 'Cancel',
+                                                        onPress: () => { }
+                                                    },
+                                                    {
+                                                        text: 'Delete',
+                                                        onPress: async () => {
+                                                            await removeReminderViaNotifId(r.notificationId);
+                                                            await Notifications.cancelScheduledNotificationAsync(r.notificationId);
+                                                            const storedReminders = await getAllReminders();
+                                                            setReminderList(sortList(storedReminders));
+                                                        }
+                                                    }
+                                                ], { cancelable: false });
+                                            }}
+                                        />
+                                    </View>
+                                </View>
+                            ))}
+                        </>
+                    );
+                }
+                else {
+                    return (
+                        <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                            <TouchableOpacity
+                                style={{ padding: 20, borderRadius: 100, backgroundColor: '#ccc', width: 100, height: 100 }}
+                                onPress={() => navigation.navigate('SetReminder')}
+                            >
+                                <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 40, textAlign: 'center' }}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+                    );
+                }
+            })()}
+        </MinaliContainer>
     );
 }
 
@@ -116,7 +121,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#ccc'
+        borderBottomColor: '#4B5564'
     },
     textPadding: {
         padding: 2

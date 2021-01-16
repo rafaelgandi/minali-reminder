@@ -1,6 +1,6 @@
 
 import React, { useEffect, useReducer, useRef } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Keyboard, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import Sherlock from 'sherlockjs';
@@ -8,6 +8,7 @@ import { storeNewReminder } from '$lib/storage'
 import hdate from 'human-date';
 import { Picker } from '@react-native-picker/picker';
 import { schedNotif } from '$lib/notif.js';
+import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -24,16 +25,10 @@ const initialState = {
     infoText: '',
     recurring: null
 };
-const numberOfSeconds = {
-    '1min': 60,
-    'daily': 86400,
-    'weekly': 604800,
-    'monthly': 2628000,
-    'yearly': 31540000
-};
 
 let reminderTextThrottle = null,
     whenTextThrottle = null,
+    doneThrottle = null,
     throttleTimeout = 600;
 
 export default function HomeScreen({ navigation }) {
@@ -70,12 +65,7 @@ export default function HomeScreen({ navigation }) {
             if (!state.recurring) {
                 return date;
             }
-            if (state.recurring === '1min') {
-                return {
-                    repeats: true,
-                    seconds: 60
-                };
-            }
+            // For recurring reminders below. Currently I only support daily or weekly
             let tObj = {
                 repeats: true,
                 hour: date.getHours(),
@@ -87,9 +77,10 @@ export default function HomeScreen({ navigation }) {
             return tObj;
         })();
 
+        // Schedule the notification
         let notificationId = await schedNotif({
             content: {
-                title: "Minali Reminder",
+                title: "Reminder",
                 body: state.reminderText.trim(),
             },
             trigger
@@ -129,9 +120,6 @@ export default function HomeScreen({ navigation }) {
                         recurring: null
                     }
                 });
-                setTimeout(() => {
-                    dispatcher({ value: { infoText: '' } });
-                }, 2e3);
                 Keyboard.dismiss();
             })();
 
@@ -159,15 +147,33 @@ export default function HomeScreen({ navigation }) {
                     infoText: 'Unable to determine the time for the reminder.'
                 }
             });
+
             return;
         }
     }
 
     return (
-        <View style={[globalStyles.container, { paddingTop: 30 }]}>
+        <MinaliContainer>
+            <View style={{ width: '100%', paddingBottom: 40, marginTop:20 }}>
+                <TouchableOpacity
+                    style={{
+                        padding: 5,
+                        backgroundColor: '#000',
+                        position: 'absolute',
+                        right: 20,
+                        borderRadius: 3,
+                        paddingLeft: 15,
+                        paddingRight: 15,
+                    }}
+                    onPress={onSetReminder}
+                >
+                    <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+            </View>
+
             <TextInput
                 style={styles.textArea}
-                placeholder="Reminder..."
+                placeholder="Remind me about..."
                 placeholderTextColor="#ccc"
                 multiline
                 autoFocus={true}
@@ -195,7 +201,7 @@ export default function HomeScreen({ navigation }) {
                             dispatcher({
                                 value: {
                                     parsedReminderDateTime: null,
-                                    infoText: 'Unable to determine the time for the reminder.'
+                                    infoText: ''
                                 }
                             });
                             return;
@@ -207,7 +213,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.recurringPickerCon}>
                 <Picker
                     selectedValue={(state.recurring) ? state.recurring : '`no_recurring`'}
-                    style={{ height: 20, width: 300, color: '#ccc'}} 
+                    style={{ height: 20, width: 300, color: '#ccc'}}
                     onValueChange={(itemValue, itemIndex) => {
                         if (itemValue === 'no_recurring') {
                             dispatcher({
@@ -215,7 +221,7 @@ export default function HomeScreen({ navigation }) {
                                     recurring: null
                                 }
                             });
-                            return; 
+                            return;
                         }
                         dispatcher({
                             value: {
@@ -224,7 +230,6 @@ export default function HomeScreen({ navigation }) {
                         });
                     }}>
                     <Picker.Item label="One Time" value="no_recurring" />
-                    <Picker.Item label="Every minute" value="1min" />
                     <Picker.Item label="Daily" value="daily" />
                     <Picker.Item label="Weekly" value="weekly" />
                 </Picker>
@@ -232,16 +237,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
             </View>
-
-            <View style={{ marginTop: 5, width: '100%', flex: 1, alignItems: 'center' }}>
-                <TouchableOpacity
-                    style={styles.buttons}
-                    onPress={onSetReminder}
-                >
-                    <Text style={styles.buttonText}>Done</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </MinaliContainer>
     );
 }
 
@@ -271,7 +267,7 @@ const styles = StyleSheet.create({
     },
     buttons: {
         backgroundColor: '#ccc',
-        padding: 15, 
+        padding: 15,
         margin: 10,
         borderRadius: 3,
         width: '80%'
@@ -283,8 +279,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     dateConfirmerCon: {
-        marginTop: 5,
-        padding: 3
+        marginTop: 10,
+        padding: 3,
+        marginLeft: 10,
+        marginRight: 10
     },
     dateConfirmerText: {
         textAlign: 'center',
@@ -304,7 +302,8 @@ const styles = StyleSheet.create({
         elevation: 4
     },
     recurringPickerCon: {
-        marginTop: 5,
-        padding: 3
+        marginTop: 10,
+        padding: 3,
+        paddingLeft: 10
     }
 });

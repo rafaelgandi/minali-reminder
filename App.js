@@ -21,21 +21,12 @@ const Drawer = createDrawerNavigator();
 let firstRun = true;
 
 
-function MinaliStackNav() {
-    return (
-        <Stack.Navigator screenOptions={screenHeaderOptions}>
-            <Stack.Screen options={{ title: 'Minali Reminders' }} name="Home" component={HomeScreen} />
-            <Stack.Screen options={{ title: 'Details' }} name="Details" component={DetailsScreen} />
-        </Stack.Navigator>
-    );
-}
-
 function MinaliDrawerContent(props) {
     // See: https://reactnavigation.org/docs/drawer-navigator/
     let newProps = {
         ...props,
         labelStyle: { color: '#fff', fontWeight: 'bold' },
-        activeBackgroundColor: '#9AA1AC'
+        activeBackgroundColor: '#000'
     };
     // See: https://stackoverflow.com/questions/62204060/how-to-hide-drawer-item-in-react-navigation-5x
     const { state, ...rest } = newProps;
@@ -43,7 +34,7 @@ function MinaliDrawerContent(props) {
     newState.routes = newState.routes.filter((item) => item.name !== 'ReminderDetail');
     return (
         <DrawerContentScrollView {...props}>
-            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders</Text>
+            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders 🎯</Text>
             <DrawerItemList state={newState} {...rest} />
         </DrawerContentScrollView>
     );
@@ -76,8 +67,9 @@ export default function App() {
             >
                 <Drawer.Screen options={{ title: 'Set Reminder' }} name="SetReminder" component={HomeScreen} />
                 <Drawer.Screen options={{ title: 'Reminder List' }} name="ReminderList" component={ReminderListScreen} />
-                <Drawer.Screen options={{ title: 'Reminder Detail' }} name="ReminderDetail" component={ReminderDetailScreen} />
                 <Drawer.Screen options={{ title: 'About' }} name="About" component={AboutScreen} />
+
+                <Drawer.Screen options={{ title: 'Reminder Detail' }} name="ReminderDetail" component={ReminderDetailScreen} />
             </Drawer.Navigator>
 
             <StatusBar style="light" />

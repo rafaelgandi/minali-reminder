@@ -5,7 +5,7 @@ const s = (() => {
     let s = {};
     s.container = {
         backgroundColor: '#3C3F43',
-        flex: 1,   
+        flex: 1,
         alignItems: 'center',
         //justifyContent: 'top',
         paddingTop: 40
@@ -20,12 +20,24 @@ const s = (() => {
         textAlign: 'center'
     };
 
-    s.headerText = { 
-        padding: 20, 
-        fontWeight: 'bold', 
-        fontSize: 30, 
+    s.headerText = {
+        padding: 20,
+        fontWeight: 'bold',
+        fontSize: 30,
         color: '#fff',
-        textAlign: 'left' 
+        textAlign: 'left'
+    };
+
+    s.defaultBoxShadow = {
+        shadowColor: "#54FFC3",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5
     };
 
     return s;
