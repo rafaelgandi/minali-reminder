@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, SafeAreaView, ScrollView, Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import { Button, Text, View, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js';
 import { getAllReminders, removeReminderViaNotifId } from '$lib/storage';
 import hdate from 'human-date'; // See: https://www.npmjs.com/package/human-date
 import { recurringDate } from '$lib/recurring-friendly-date.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
+import { removeNotification } from '$lib/notif.js';
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
@@ -85,7 +85,7 @@ export default function ReminderListScreen({ navigation }) {
                                                         text: 'Delete',
                                                         onPress: async () => {
                                                             await removeReminderViaNotifId(r.notificationId);
-                                                            await Notifications.cancelScheduledNotificationAsync(r.notificationId);
+                                                            await removeNotification(r.notificationId);
                                                             const storedReminders = await getAllReminders();
                                                             setReminderList(sortList(storedReminders));
                                                         }

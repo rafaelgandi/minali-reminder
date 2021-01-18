@@ -16,6 +16,7 @@
     "@react-navigation/stack": "^5.12.8",
     "expo": "~40.0.0",
     "expo-constants": "~9.3.3",
+    "expo-linking": "~2.0.0",
     "expo-notifications": "~0.8.2",
     "expo-status-bar": "~1.0.3",
     "human-date": "^1.4.0",

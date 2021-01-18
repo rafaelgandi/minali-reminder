@@ -8,12 +8,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 
-import { screenHeaderOptions } from '$styles/Global.styles.js'
-
 import HomeScreen from '$screens/HomeScreen/HomeScreen.js'
 import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen.js'
 import AboutScreen from '$screens/AboutScreen/AboutScreen.js'
 import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen.js'
+
+import linking from '$lib/deep-linking-config.js'
 
 
 const Stack = createStackNavigator();
@@ -56,11 +56,11 @@ export default function App() {
         }
     }, []);
     return (
-        <NavigationContainer fallback={<Text>Loading...</Text>}>
+        <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
             <Drawer.Navigator
                 initialRouteName="SetReminder"
                 drawerStyle={{
-                    backgroundColor: '#3C3F43',
+                    backgroundColor: '#3C3F43', 
                     color: '#fff'
                 }}
                 drawerContent={(props) => <MinaliDrawerContent {...props} />}
