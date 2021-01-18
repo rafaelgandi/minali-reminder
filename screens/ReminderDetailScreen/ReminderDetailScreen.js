@@ -65,7 +65,7 @@ export default function ReminderDetailScreen({ route, navigation }) {
                         style={styles.button}
                         onPress={snooze}
                     >
-                        <Text style={styles.buttonText}>Snooze for 10 min</Text>
+                        <Text style={styles.buttonText}>Revive for 10 min</Text>
                     </TouchableOpacity>}
 
                     <TouchableOpacity

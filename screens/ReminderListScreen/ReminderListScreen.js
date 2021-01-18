@@ -60,17 +60,19 @@ export default function ReminderListScreen({ navigation }) {
                                     key={r.notificationId}
                                     style={[styles.listItem, { opacity: (now.getTime() > r.dateTime && !r.recurring) ? 0.5 : 1 }]}
                                 >
-                                    <Text style={[globalStyles.defaultTextColor, styles.primaryText, { paddingBottom: 10 }]}>{r.reminder}</Text>
-                                    {
-                                        (r.recurring)
-                                            ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `♻️ Recurring ${r.recurring}` : ''}</Text>
-                                            : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{'⌛' + hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
-                                    }
-                                    {
-                                        (r.recurring)
-                                            ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
-                                            : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
-                                    }
+                                    <TouchableOpacity onPress={() => navigation.navigate('ReminderDetail', {id: r.notificationId})}>
+                                        <Text style={[globalStyles.defaultTextColor, styles.primaryText, { paddingBottom: 10 }]}>{r.reminder}</Text>
+                                        {
+                                            (r.recurring)
+                                                ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `♻️ Recurring ${r.recurring}` : ''}</Text>
+                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{'⌛' + hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
+                                        }
+                                        {
+                                            (r.recurring)
+                                                ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
+                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
+                                        }
+                                    </TouchableOpacity>
                                     <View style={styles.listItemControlsCon}>
                                         <Button
                                             color="#000"

@@ -1,25 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { askNotificationPermission, setNotifHandler } from '$lib/notif.js';
-import AsyncStorage from '@react-native-community/async-storage'
-
+import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-
-import HomeScreen from '$screens/HomeScreen/HomeScreen.js'
-import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen.js'
+import HomeScreen from '$screens/HomeScreen/HomeScreen.js';
+import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen.js';
 import AboutScreen from '$screens/AboutScreen/AboutScreen.js'
-import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen.js'
+import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen.js';
+import linking from '$lib/deep-linking-config.js';
+import globalStyles from '$styles/Global.styles.js' 
 
-import linking from '$lib/deep-linking-config.js'
-
-
-const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 let firstRun = true;
-
 
 function MinaliDrawerContent(props) {
     // See: https://reactnavigation.org/docs/drawer-navigator/
@@ -56,7 +50,14 @@ export default function App() {
         }
     }, []);
     return (
-        <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+        <NavigationContainer 
+            linking={linking} 
+            fallback={
+                <View style={globalStyles.container}>
+                    <Text style={{color:'#fff', padding:20, textAlign:'center'}}>👋 Hello...</Text>
+                </View>             
+            }
+        >
             <Drawer.Navigator
                 initialRouteName="SetReminder"
                 drawerStyle={{

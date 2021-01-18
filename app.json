@@ -27,7 +27,7 @@
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#3C3F43"
             },
-            "useNextNotificationsApi": true           
+            "useNextNotificationsApi": true         
         },
         "androidStatusBar": {
             "barStyle": "light-content",
