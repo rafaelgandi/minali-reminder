@@ -8,7 +8,9 @@ import { storeNewReminder } from '$lib/storage'
 import hdate from 'human-date';
 import { Picker } from '@react-native-picker/picker';
 import { schedNotif } from '$lib/notif.js';
+import { isToday } from '$lib/helpers.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
+import RecentReminder from '$components/RecentReminder/RecentReminder';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -116,7 +118,7 @@ export default function HomeScreen({ navigation }) {
                         reminderText: '',
                         whenText: '',
                         parsedReminderDateTime: null,
-                        infoText: `Reminder set for ${hdate.prettyPrint(date, { showTime: true })}`,
+                        infoText: `Reminder set for ${(isToday(date)) ? 'today,' : ''} ${hdate.prettyPrint(date, { showTime: true })}`,
                         recurring: null
                     }
                 });
@@ -135,7 +137,7 @@ export default function HomeScreen({ navigation }) {
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
                     //infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
-                    infoText: `Set for ${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
+                    infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today,' : ''} ${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
                 }
             });
             return prasedReminder.startDate;
@@ -237,6 +239,9 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
             </View>
+
+            <RecentReminder />
+            
         </MinaliContainer>
     );
 }

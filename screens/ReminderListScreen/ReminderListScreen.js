@@ -7,6 +7,7 @@ import hdate from 'human-date'; // See: https://www.npmjs.com/package/human-date
 import { recurringDate } from '$lib/recurring-friendly-date.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import { removeNotification } from '$lib/notif.js';
+import { isToday } from '$lib/helpers.js';
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
@@ -54,7 +55,7 @@ export default function ReminderListScreen({ navigation }) {
                 if (reminderList.length) {
                     return (
                         <>
-                            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 20 }]}>Upcoming Reminders 🚀</Text>
+                            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 30, width: '70%' }]}>Upcoming Reminders 🚀</Text>
                             {reminderList.map((r) => (
                                 <View
                                     key={r.notificationId}
@@ -70,7 +71,7 @@ export default function ReminderListScreen({ navigation }) {
                                         {
                                             (r.recurring)
                                                 ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
-                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
+                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(isToday(new Date(r.dateTime))) ? 'Today, ' : ''}{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
                                         }
                                     </TouchableOpacity>
                                     <View style={styles.listItemControlsCon}>
@@ -103,12 +104,12 @@ export default function ReminderListScreen({ navigation }) {
                 }
                 else {
                     return (
-                        <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                        <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>                          
                             <TouchableOpacity
-                                style={{ padding: 20, borderRadius: 100, backgroundColor: '#ccc', width: 100, height: 100 }}
+                                style={{ padding: 10, backgroundColor: '#000', marginTop: 80 }}
                                 onPress={() => navigation.navigate('SetReminder')}
                             >
-                                <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 40, textAlign: 'center' }}>+</Text>
+                                <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 15, textAlign: 'center' }}>😴 Set Reminder</Text>
                             </TouchableOpacity>
                         </View>
                     );

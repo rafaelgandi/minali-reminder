@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
-import { getReminderByNotifId, updateReminderByNotifId } from '$lib/storage';
-import { schedNotif } from '$lib/notif.js';
+import { getReminderByNotifId } from '$lib/storage';
+import { snooze } from '$lib/helpers.js';
 
 export default function ReminderDetailScreen({ route, navigation }) {
     const { id } = route.params;
@@ -20,23 +20,10 @@ export default function ReminderDetailScreen({ route, navigation }) {
 
     if (!id) { return null; }
 
-    async function snooze() {
+    async function onSnooze() {
         if (reminderDetails && !reminderDetails.recurring) {
-            const oldNotificationId = reminderDetails.notificationId;
-            const now = new Date();
-            const TEN_MINUTES = 600; // seconds
-            now.setSeconds(now.getSeconds() + TEN_MINUTES);
-            const notificationId = await schedNotif({
-                content: {
-                    title: "Reminder",
-                    body: reminderDetails.reminder,
-                },
-                trigger: now
-            });
-            reminderDetails.notificationId = notificationId;
-            reminderDetails.dateTime = now.getTime();
-            await updateReminderByNotifId(oldNotificationId, reminderDetails);
-            navigation.navigate('ReminderList'); 
+            await snooze(reminderDetails);
+            navigation.navigate('ReminderList');  
         }
     }
 
@@ -63,16 +50,16 @@ export default function ReminderDetailScreen({ route, navigation }) {
                 <View style={{ flex: 1, justifyContent: 'center', marginTop: 20 }}>
                     {! reminderDetails.recurring && <TouchableOpacity
                         style={styles.button}
-                        onPress={snooze}
+                        onPress={onSnooze}
                     >
-                        <Text style={styles.buttonText}>Revive for 10 min</Text>
+                        <Text style={styles.buttonText}>Notify in 10 min</Text>
                     </TouchableOpacity>}
 
                     <TouchableOpacity
                         style={styles.button}
                         onPress={() => navigation.navigate('ReminderList')}
                     >
-                        <Text style={styles.buttonText}>Dismiss</Text>
+                        <Text style={styles.buttonText}>Okay</Text>
                     </TouchableOpacity>
                 </View>
             </View>
