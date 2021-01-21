@@ -25,7 +25,8 @@ const initialState = {
     whenText: '',
     parsedReminderDateTime: null,
     infoText: '',
-    recurring: null
+    recurring: null,
+    displayRecentReminder: false
 };
 
 let reminderTextThrottle = null,
@@ -41,9 +42,31 @@ export default function HomeScreen({ navigation }) {
         if (isFocused && reminderTextRef.current) {
             dispatcher({ value: initialState });
             reminderTextRef.current.focus();
-
         }
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+        // cleanup function
+        return () => {
+            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+            Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
     }, [isFocused]);
+
+    function _keyboardDidShow() {
+        dispatcher({
+            value: {
+                displayRecentReminder: false
+            }
+        });
+    }
+
+    function _keyboardDidHide() {
+        dispatcher({
+            value: {
+                displayRecentReminder: true
+            }
+        });
+    }
 
     async function scheduleNotification(date) {
         if (!date) {
@@ -118,7 +141,7 @@ export default function HomeScreen({ navigation }) {
                         reminderText: '',
                         whenText: '',
                         parsedReminderDateTime: null,
-                        infoText: `Reminder set for ${(isToday(date)) ? 'today,' : ''} ${hdate.prettyPrint(date, { showTime: true })}`,
+                        infoText: `Reminder set for ${(isToday(date)) ? 'today, ' : ''}${hdate.prettyPrint(date, { showTime: true })}`,
                         recurring: null
                     }
                 });
@@ -137,7 +160,7 @@ export default function HomeScreen({ navigation }) {
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
                     //infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
-                    infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today,' : ''} ${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
+                    infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today, ' : ''}${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
                 }
             });
             return prasedReminder.startDate;
@@ -154,9 +177,11 @@ export default function HomeScreen({ navigation }) {
         }
     }
 
+    const recentReminderVisibility = (!state.displayRecentReminder) ? {opacity: 0} : {};
+
     return (
         <MinaliContainer>
-            <View style={{ width: '100%', paddingBottom: 40, marginTop:20 }}>
+            <View style={{ width: '100%', paddingBottom: 40, marginTop: 20 }}>
                 <TouchableOpacity
                     style={{
                         padding: 5,
@@ -215,7 +240,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.recurringPickerCon}>
                 <Picker
                     selectedValue={(state.recurring) ? state.recurring : '`no_recurring`'}
-                    style={{ height: 20, width: 300, color: '#ccc'}}
+                    style={{ height: 20, width: 300, color: '#ccc' }}
                     onValueChange={(itemValue, itemIndex) => {
                         if (itemValue === 'no_recurring') {
                             dispatcher({
@@ -239,9 +264,9 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
             </View>
-
-            <RecentReminder />
-            
+            <View style={[recentReminderVisibility, {backgroundColor: '#3C3F43'}]}>
+                <RecentReminder />
+            </View>                     
         </MinaliContainer>
     );
 }

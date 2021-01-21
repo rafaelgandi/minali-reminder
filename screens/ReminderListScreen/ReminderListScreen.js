@@ -14,10 +14,12 @@ export default function ReminderListScreen({ navigation }) {
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused) {
-            (async () => {
-                const storedReminders = await getAllReminders();
-                setReminderList(sortList(storedReminders));
-            })();
+            setTimeout(() => {
+                (async () => {
+                    const storedReminders = await getAllReminders();
+                    setReminderList(sortList(storedReminders));
+                })();
+            }, 500);           
         }
     }, [isFocused]);
 

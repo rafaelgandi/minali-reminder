@@ -13,7 +13,7 @@ export default function AboutScreen({ navigation }) {
                         textAlign: 'center'
                     }]}
                 >
-                    A super minimal reminder app built for you.
+                    A super minimal reminder app built for you. 😁
             </Text>
             </View>
         </MinaliContainer>
