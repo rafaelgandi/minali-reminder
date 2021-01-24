@@ -5,12 +5,12 @@ import { askNotificationPermission, setNotifHandler } from '$lib/notif.js';
 import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import HomeScreen from '$screens/HomeScreen/HomeScreen.js';
-import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen.js';
-import AboutScreen from '$screens/AboutScreen/AboutScreen.js'
-import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen.js';
-import linking from '$lib/deep-linking-config.js';
-import globalStyles from '$styles/Global.styles.js' 
+import HomeScreen from '$screens/HomeScreen/HomeScreen';
+import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen';
+import AboutScreen from '$screens/AboutScreen/AboutScreen'
+import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen';
+import globalStyles from '$styles/Global.styles.js'
+import routes from '$lib/routes.js';
 
 const Drawer = createDrawerNavigator();
 let firstRun = true;
@@ -25,7 +25,7 @@ function MinaliDrawerContent(props) {
     // See: https://stackoverflow.com/questions/62204060/how-to-hide-drawer-item-in-react-navigation-5x
     const { state, ...rest } = newProps;
     const newState = { ...state };
-    newState.routes = newState.routes.filter((item) => item.name !== 'ReminderDetail');
+    newState.routes = newState.routes.filter((item) => (item.name !== routes.reminderDetail));
     return (
         <DrawerContentScrollView {...props}>
             <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders 🎯</Text>
@@ -49,28 +49,28 @@ export default function App() {
             })();
         }
     }, []);
+
     return (
-        <NavigationContainer 
-            linking={linking} 
+        <NavigationContainer         
             fallback={
                 <View style={globalStyles.container}>
-                    <Text style={{color:'#fff', padding:20, textAlign:'center'}}>👋 Hello...</Text>
-                </View>             
+                    <Text style={{ color: '#fff', padding: 20, textAlign: 'center' }}>👋 Hello...</Text>
+                </View>
             }
         >
             <Drawer.Navigator
-                initialRouteName="SetReminder"
+                initialRouteName={routes.setReminder}
                 drawerStyle={{
-                    backgroundColor: '#3C3F43', 
+                    backgroundColor: '#3C3F43',
                     color: '#fff'
                 }}
                 drawerContent={(props) => <MinaliDrawerContent {...props} />}
             >
-                <Drawer.Screen options={{ title: 'Set Reminder' }} name="SetReminder" component={HomeScreen} />
-                <Drawer.Screen options={{ title: 'Reminder List' }} name="ReminderList" component={ReminderListScreen} />
-                <Drawer.Screen options={{ title: 'About' }} name="About" component={AboutScreen} />
+                <Drawer.Screen options={{ title: 'Set Reminder' }} name={routes.setReminder} component={HomeScreen} />
+                <Drawer.Screen options={{ title: 'Reminder List' }} name={routes.reminderList} component={ReminderListScreen} />
+                <Drawer.Screen options={{ title: 'About' }} name={routes.about} component={AboutScreen} />
 
-                <Drawer.Screen options={{ title: 'Reminder Detail' }} name="ReminderDetail" component={ReminderDetailScreen} />
+                <Drawer.Screen options={{ title: 'Reminder Detail' }} name={routes.reminderDetail} component={ReminderDetailScreen} />
             </Drawer.Navigator>
 
             <StatusBar style="light" />

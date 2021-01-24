@@ -11,6 +11,8 @@ import { schedNotif } from '$lib/notif.js';
 import { isToday } from '$lib/helpers.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import RecentReminder from '$components/RecentReminder/RecentReminder';
+import routes from '$lib/routes.js';
+import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -31,13 +33,16 @@ const initialState = {
 
 let reminderTextThrottle = null,
     whenTextThrottle = null,
-    doneThrottle = null,
     throttleTimeout = 600;
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
     const isFocused = useIsFocused();
     const reminderTextRef = useRef(null);
+    useNotificationRecieved((notificationId) => {
+        navigation.navigate(routes.reminderDetail, {id: notificationId});
+    });
+    
     useEffect(() => {
         if (isFocused && reminderTextRef.current) {
             dispatcher({ value: initialState });
@@ -134,7 +139,8 @@ export default function HomeScreen({ navigation }) {
                     reminder: state.reminderText,
                     dateTime: date.getTime(),
                     recurring: (state.recurring) ? state.recurring : false,
-                    notificationId: notificationId
+                    notificationId: notificationId,
+                    whenText: state.whenText
                 });
                 dispatcher({
                     value: {
@@ -191,10 +197,11 @@ export default function HomeScreen({ navigation }) {
                         borderRadius: 3,
                         paddingLeft: 15,
                         paddingRight: 15,
+                        elevation: 8
                     }}
                     onPress={onSetReminder}
                 >
-                    <Text style={styles.buttonText}>Save</Text>
+                    <Text style={styles.buttonText}>💾 Save</Text>
                 </TouchableOpacity>
             </View>
 

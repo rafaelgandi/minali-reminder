@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Button, Text, View, Alert, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js';
 import { getAllReminders, removeReminderViaNotifId } from '$lib/storage';
@@ -8,8 +8,13 @@ import { recurringDate } from '$lib/recurring-friendly-date.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import { removeNotification } from '$lib/notif.js';
 import { isToday } from '$lib/helpers.js';
+import routes from '$lib/routes.js';
+import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 
 export default function ReminderListScreen({ navigation }) {
+    useNotificationRecieved((notificationId) => {
+        navigation.navigate(routes.reminderDetail, {id: notificationId});
+    });
     const [reminderList, setReminderList] = useState(null);
     const isFocused = useIsFocused();
     useEffect(() => {
@@ -63,19 +68,23 @@ export default function ReminderListScreen({ navigation }) {
                                     key={r.notificationId}
                                     style={[styles.listItem, { opacity: (now.getTime() > r.dateTime && !r.recurring) ? 0.5 : 1 }]}
                                 >
-                                    <TouchableOpacity onPress={() => navigation.navigate('ReminderDetail', {id: r.notificationId})}>
-                                        <Text style={[globalStyles.defaultTextColor, styles.primaryText, { paddingBottom: 10 }]}>{r.reminder}</Text>
-                                        {
-                                            (r.recurring)
-                                                ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `♻️ Recurring ${r.recurring}` : ''}</Text>
-                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{'⌛' + hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
-                                        }
-                                        {
-                                            (r.recurring)
-                                                ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
-                                                : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(isToday(new Date(r.dateTime))) ? 'Today, ' : ''}{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
-                                        }
-                                    </TouchableOpacity>
+                                    <View>
+                                        <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.reminderDetail, {id: r.notificationId})}>
+                                            <View>
+                                                <Text style={[globalStyles.defaultTextColor, styles.primaryText, { paddingBottom: 10 }]}>{r.reminder}</Text>
+                                                {
+                                                    (r.recurring)
+                                                        ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(r.recurring) ? `♻️ Recurring ${r.recurring}` : ''}</Text>
+                                                        : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{'⌛' + hdate.relativeTime(new Date(r.dateTime), { presentText: 'today' })}</Text>
+                                                }
+                                                {
+                                                    (r.recurring)
+                                                        ? <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{recurringDate(r)}</Text>
+                                                        : <Text style={[globalStyles.defaultTextColor, styles.secondaryText]}>{(isToday(new Date(r.dateTime))) ? 'Today, ' : ''}{hdate.prettyPrint(new Date(r.dateTime), { showTime: true })}</Text>
+                                                }
+                                            </View>
+                                        </TouchableWithoutFeedback>
+                                    </View>
                                     <View style={styles.listItemControlsCon}>
                                         <Button
                                             color="#000"
@@ -109,7 +118,7 @@ export default function ReminderListScreen({ navigation }) {
                         <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>                          
                             <TouchableOpacity
                                 style={{ padding: 10, backgroundColor: '#000', marginTop: 80 }}
-                                onPress={() => navigation.navigate('SetReminder')}
+                                onPress={() => navigation.navigate(routes.setReminder)}
                             >
                                 <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 15, textAlign: 'center' }}>😴 Set Reminder</Text>
                             </TouchableOpacity>

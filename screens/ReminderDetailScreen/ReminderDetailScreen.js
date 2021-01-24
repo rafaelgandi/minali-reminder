@@ -5,6 +5,7 @@ import globalStyles from '$styles/Global.styles.js'
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import { getReminderByNotifId } from '$lib/storage';
 import { snooze } from '$lib/helpers.js';
+import routes from '$lib/routes.js';
 
 export default function ReminderDetailScreen({ route, navigation }) {
     const { id } = route.params;
@@ -23,41 +24,43 @@ export default function ReminderDetailScreen({ route, navigation }) {
     async function onSnooze() {
         if (reminderDetails && !reminderDetails.recurring) {
             await snooze(reminderDetails);
-            navigation.navigate('ReminderList');  
+            navigation.navigate(routes.reminderList);  
         }
     }
 
     return (
         <MinaliContainer>
-            <View style={{ marginTop: 20, padding: 10 }}>
-                {(() => {
-                    if (reminderDetails === false) {
-                        return (
-                            <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontStyle: 'italic' }]}>Loading...</Text>
-                        );
-                    }
-                    if (reminderDetails) {
-                        return (
-                            <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontSize: 30 }]}>{reminderDetails.reminder}</Text>
-                        );
-                    }
-                    else {
-                        return (
-                            <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', color: '#ccc' }]}>No reminder found.</Text>
-                        );
-                    }
-                })()}
-                <View style={{ flex: 1, justifyContent: 'center', marginTop: 20 }}>
+            <View style={{flex: 1, marginTop: 20, padding: 10 }}>
+                <View style={{flex:1}}>
+                    {(() => {
+                        if (reminderDetails === false) {
+                            return (
+                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontStyle: 'italic' }]}>Loading...</Text>
+                            );
+                        }
+                        if (reminderDetails) {
+                            return (
+                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontSize: 30 }]}>{reminderDetails.reminder}</Text>
+                            );
+                        }
+                        else {
+                            return (
+                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', color: '#ccc' }]}>No reminder found.</Text>
+                            );
+                        }
+                    })()}
+                </View>
+                <View style={{ flex: 1, justifyContent: 'center', marginTop: 20,  }}>
                     {! reminderDetails.recurring && <TouchableOpacity
                         style={styles.button}
                         onPress={onSnooze}
                     >
-                        <Text style={styles.buttonText}>Notify in 10 min</Text>
+                        <Text style={styles.buttonText}>Snooze 10 min</Text>
                     </TouchableOpacity>}
 
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => navigation.navigate('ReminderList')}
+                        onPress={() => navigation.navigate(routes.reminderList)}
                     >
                         <Text style={styles.buttonText}>Okay</Text>
                     </TouchableOpacity>
@@ -81,5 +84,6 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         paddingLeft: 15,
         paddingRight: 15,
+        elevation: 8
     }
 });

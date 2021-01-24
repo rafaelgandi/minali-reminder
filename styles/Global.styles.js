@@ -6,7 +6,7 @@ const s = (() => {
     s.container = {
         backgroundColor: '#3C3F43',
         flex: 1,
-        alignItems: 'center',
+        //alignItems: 'center',
         //justifyContent: 'top',
         paddingTop: 40
     };
