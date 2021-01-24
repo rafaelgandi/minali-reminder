@@ -9,12 +9,8 @@ import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import { removeNotification } from '$lib/notif.js';
 import { isToday } from '$lib/helpers.js';
 import routes from '$lib/routes.js';
-import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 
 export default function ReminderListScreen({ navigation }) {
-    useNotificationRecieved((notificationId) => {
-        navigation.navigate(routes.reminderDetail, {id: notificationId});
-    });
     const [reminderList, setReminderList] = useState(null);
     const isFocused = useIsFocused();
     useEffect(() => {

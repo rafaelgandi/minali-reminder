@@ -40,7 +40,7 @@ export default function HomeScreen({ navigation }) {
     const isFocused = useIsFocused();
     const reminderTextRef = useRef(null);
     useNotificationRecieved((notificationId) => {
-        navigation.navigate(routes.reminderDetail, {id: notificationId});
+        isFocused && navigation.navigate(routes.reminderDetail, {id: notificationId});
     });
     
     useEffect(() => {
