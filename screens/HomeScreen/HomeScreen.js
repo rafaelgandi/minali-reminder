@@ -40,7 +40,7 @@ export default function HomeScreen({ navigation }) {
     const isFocused = useIsFocused();
     const reminderTextRef = useRef(null);
     useNotificationRecieved((notificationId) => {
-        isFocused && navigation.navigate(routes.reminderDetail, {id: notificationId});
+        isFocused && navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
     });
     
     useEffect(() => {
@@ -48,30 +48,30 @@ export default function HomeScreen({ navigation }) {
             dispatcher({ value: initialState });
             reminderTextRef.current.focus();
         }
-        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
-        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+        // Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        // Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
         // cleanup function
         return () => {
-            Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-            Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+            // Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+            // Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
         };
     }, [isFocused]);
 
-    function _keyboardDidShow() {
-        dispatcher({
-            value: {
-                displayRecentReminder: false
-            }
-        });
-    }
+    // function _keyboardDidShow() {
+    //     dispatcher({
+    //         value: {
+    //             displayRecentReminder: false
+    //         }
+    //     });
+    // }
 
-    function _keyboardDidHide() {
-        dispatcher({
-            value: {
-                displayRecentReminder: true
-            }
-        });
-    }
+    // function _keyboardDidHide() {
+    //     dispatcher({
+    //         value: {
+    //             displayRecentReminder: true
+    //         }
+    //     });
+    // }
 
     async function scheduleNotification(date) {
         if (!date) {
@@ -183,7 +183,12 @@ export default function HomeScreen({ navigation }) {
         }
     }
 
-    const recentReminderVisibility = (!state.displayRecentReminder) ? {opacity: 0} : {};
+    //const recentReminderVisibility = (!state.displayRecentReminder) ? {opacity: 0} : {};
+    /*
+        <View style={[recentReminderVisibility, {backgroundColor: '#3C3F43'}]}>
+                <RecentReminder />
+            </View>  
+    */
 
     return (
         <MinaliContainer>
@@ -270,10 +275,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
-            </View>
-            <View style={[recentReminderVisibility, {backgroundColor: '#3C3F43'}]}>
-                <RecentReminder />
-            </View>                     
+            </View>                   
         </MinaliContainer>
     );
 }

@@ -129,9 +129,9 @@ export default function ReminderListScreen({ navigation }) {
 const styles = StyleSheet.create({
     listItem: {
         padding: 10,
-        marginBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#4B5564'
+        marginBottom: 15//,
+        // borderBottomWidth: 1,
+        // borderBottomColor: '#4B5564'
     },
     textPadding: {
         padding: 2

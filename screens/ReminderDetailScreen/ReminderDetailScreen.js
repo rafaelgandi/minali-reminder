@@ -60,9 +60,16 @@ export default function ReminderDetailScreen({ route, navigation }) {
 
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => navigation.navigate(routes.reminderList)}
+                        onPress={() => {
+                            if (route.params.fromNotificationTap) {
+                                navigation.navigate(routes.setReminder);
+                            }
+                            else {
+                                navigation.navigate(routes.reminderList);
+                            }
+                        }}
                     >
-                        <Text style={styles.buttonText}>Okay</Text>
+                        <Text style={styles.buttonText}>Close</Text>
                     </TouchableOpacity>
                 </View>
             </View>
