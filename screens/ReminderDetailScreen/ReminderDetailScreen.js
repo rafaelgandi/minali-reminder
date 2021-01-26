@@ -24,7 +24,7 @@ export default function ReminderDetailScreen({ route, navigation }) {
     async function onSnooze() {
         if (reminderDetails && !reminderDetails.recurring) {
             await snooze(reminderDetails);
-            navigation.navigate(routes.reminderList);  
+            navigation.navigate(routes.setReminder);   
         }
     }
 
