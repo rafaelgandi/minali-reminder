@@ -1,5 +1,5 @@
 
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, { useEffect, useReducer, useRef, useContext } from 'react';
 import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
@@ -10,7 +10,6 @@ import { Picker } from '@react-native-picker/picker';
 import { schedNotif } from '$lib/notif.js';
 import { isToday } from '$lib/helpers.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
-import RecentReminder from '$components/RecentReminder/RecentReminder';
 import routes from '$lib/routes.js';
 import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 
@@ -42,36 +41,13 @@ export default function HomeScreen({ navigation }) {
     useNotificationRecieved((notificationId) => {
         isFocused && navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
     });
-    
+
     useEffect(() => {
         if (isFocused && reminderTextRef.current) {
             dispatcher({ value: initialState });
             reminderTextRef.current.focus();
         }
-        // Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
-        // Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
-        // cleanup function
-        return () => {
-            // Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-            // Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
-        };
     }, [isFocused]);
-
-    // function _keyboardDidShow() {
-    //     dispatcher({
-    //         value: {
-    //             displayRecentReminder: false
-    //         }
-    //     });
-    // }
-
-    // function _keyboardDidHide() {
-    //     dispatcher({
-    //         value: {
-    //             displayRecentReminder: true
-    //         }
-    //     });
-    // }
 
     async function scheduleNotification(date) {
         if (!date) {
@@ -165,7 +141,6 @@ export default function HomeScreen({ navigation }) {
             dispatcher({
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
-                    //infoText: `Set for ${prasedReminder.startDate.toLocaleString()}`
                     infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today, ' : ''}${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
                 }
             });
@@ -182,13 +157,6 @@ export default function HomeScreen({ navigation }) {
             return;
         }
     }
-
-    //const recentReminderVisibility = (!state.displayRecentReminder) ? {opacity: 0} : {};
-    /*
-        <View style={[recentReminderVisibility, {backgroundColor: '#3C3F43'}]}>
-                <RecentReminder />
-            </View>  
-    */
 
     return (
         <MinaliContainer>

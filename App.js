@@ -9,6 +9,7 @@ import HomeScreen from '$screens/HomeScreen/HomeScreen';
 import ReminderListScreen from '$screens/ReminderListScreen/ReminderListScreen';
 import AboutScreen from '$screens/AboutScreen/AboutScreen'
 import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailScreen';
+import BackupRestore from '$screens/BackupRestore/BackupRestore';
 import globalStyles from '$styles/Global.styles.js'
 import routes from '$lib/routes.js';
 
@@ -34,14 +35,12 @@ function MinaliDrawerContent(props) {
     );
 }
 
-
 export default function App() {
     useEffect(() => {
         if (firstRun) {
             firstRun = false;
             (async () => {
                 await askNotificationPermission();
-                //console.log(Notifications);
                 setNotifHandler();
                 if (! await AsyncStorage.getItem('MinaliReminders@list')) {
                     AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
@@ -51,7 +50,7 @@ export default function App() {
     }, []);
 
     return (
-        <NavigationContainer         
+        <NavigationContainer
             fallback={
                 <View style={globalStyles.container}>
                     <Text style={{ color: '#fff', padding: 20, textAlign: 'center' }}>👋 Hello...</Text>
@@ -68,6 +67,7 @@ export default function App() {
             >
                 <Drawer.Screen options={{ title: 'Set Reminder' }} name={routes.setReminder} component={HomeScreen} />
                 <Drawer.Screen options={{ title: 'Reminder List' }} name={routes.reminderList} component={ReminderListScreen} />
+                <Drawer.Screen options={{ title: 'Backup and Import' }} name={routes.backUpRestore} component={BackupRestore} />
                 <Drawer.Screen options={{ title: 'About' }} name={routes.about} component={AboutScreen} />
 
                 <Drawer.Screen options={{ title: 'Reminder Detail' }} name={routes.reminderDetail} component={ReminderDetailScreen} />

@@ -9,10 +9,15 @@ import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import { removeNotification } from '$lib/notif.js';
 import { isToday } from '$lib/helpers.js';
 import routes from '$lib/routes.js';
+import useNotificationRecievedListener from '$lib/useNotificationRecievedListener.js';
+
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
     const isFocused = useIsFocused();
+    useNotificationRecievedListener((notificationId) => {
+        navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
+    }, isFocused);
     useEffect(() => {
         if (isFocused) {
             setTimeout(() => {
@@ -20,7 +25,7 @@ export default function ReminderListScreen({ navigation }) {
                     const storedReminders = await getAllReminders();
                     setReminderList(sortList(storedReminders));
                 })();
-            }, 500);           
+            }, 400);           
         }
     }, [isFocused]);
 

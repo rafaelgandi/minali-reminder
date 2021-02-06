@@ -1,12 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
+import routes from '$lib/routes.js';
+import useNotificationRecievedListener from '$lib/useNotificationRecievedListener.js';
+
 
 export default function AboutScreen({ navigation }) {
+    const isFocused = useIsFocused();
+    useNotificationRecievedListener((notificationId) => {
+        navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
+    }, isFocused);
+
     return (
         <MinaliContainer>
-            <View style={[globalStyles.container, {flex:1, alignItems:'center', justifyContent:'center' }]}>
+            <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
                 <Text
                     style={[globalStyles.defaultTextColor, {
                         padding: 50,
@@ -15,9 +24,9 @@ export default function AboutScreen({ navigation }) {
                     }]}
                 >
                     A super minimal reminder app built for you. 😁
-            </Text>
-            <Text style={{marginTop: -40, color: '#556064', fontSize: 12, textAlign: 'center'}}>www.rafaelgandi.com</Text>
-            </View> 
-        </MinaliContainer> 
+                </Text>
+                <Text style={{ marginTop: -40, color: '#556064', fontSize: 12, textAlign: 'center' }}>www.rafaelgandi.com</Text>
+            </View>
+        </MinaliContainer>
     );
 }
