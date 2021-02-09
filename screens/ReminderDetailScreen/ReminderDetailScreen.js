@@ -30,8 +30,8 @@ export default function ReminderDetailScreen({ route, navigation }) {
 
     return (
         <MinaliContainer>
-            <View style={{flex: 1, marginTop: 20, padding: 10 }}>
-                <View style={{flex:1}}>
+            <View style={styles.bigCon}>
+                <View style={styles.textCon}>
                     {(() => {
                         if (reminderDetails === false) {
                             return (
@@ -50,7 +50,7 @@ export default function ReminderDetailScreen({ route, navigation }) {
                         }
                     })()}
                 </View>
-                <View style={{ flex: 1, justifyContent: 'center', marginTop: 20,  }}>
+                <View style={styles.buttonCon}>
                     {! reminderDetails.recurring && <TouchableOpacity
                         style={styles.button}
                         onPress={onSnooze}
@@ -78,13 +78,28 @@ export default function ReminderDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    bigCon: {
+        flex: 1, 
+        marginTop: 30, 
+        padding: 10
+    },
+    textCon: {
+        flex:1
+    },
+    buttonCon: {
+        flex: 0, 
+        justifyContent: 'center', 
+        marginTop: 20,
+        flexDirection: 'row'
+    },
     buttonText: {
-        fontSize: 20,
+        fontSize: 15,
         textAlign: 'center',
         color: '#fff',
         fontWeight: 'bold'
     },
     button: {
+        margin: 10,
         marginTop: 20,
         padding: 10,
         backgroundColor: '#000',

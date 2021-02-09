@@ -29,7 +29,8 @@ export default function BackupRestore({ navigation }) {
     }, [isFocused]);
     return (
         <MinaliContainer>
-            <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
+            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 0, width: '70%' }]}>Backup &amp; Import 🎩</Text>
+            <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>            
                 <TextInput
                     style={styles.textArea}
                     multiline

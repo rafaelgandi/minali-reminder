@@ -174,7 +174,7 @@ export default function HomeScreen({ navigation }) {
                     }}
                     onPress={onSetReminder}
                 >
-                    <Text style={styles.buttonText}>💾 Save</Text>
+                    <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
             </View>
 
@@ -220,7 +220,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.recurringPickerCon}>
                 <Picker
                     selectedValue={(state.recurring) ? state.recurring : '`no_recurring`'}
-                    style={{ height: 20, width: 300, color: '#ccc' }}
+                    style={styles.recurrPicker}
                     onValueChange={(itemValue, itemIndex) => {
                         if (itemValue === 'no_recurring') {
                             dispatcher({
@@ -252,8 +252,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
     textArea: {
         minHeight: 50,
-        borderColor: 'gray',
-        borderBottomColor: '#fff',
+        borderBottomColor: '#ccc',
         borderBottomWidth: 1,
         width: '90%',
         padding: 10,
@@ -263,13 +262,12 @@ const styles = StyleSheet.create({
     },
     whenTextInput: {
         height: 50,
-        borderColor: 'gray',
         width: '90%',
         padding: 10,
         fontSize: 20,
         margin: 10,
         color: '#fff',
-        borderBottomColor: '#fff',
+        borderBottomColor: '#ccc',
         borderBottomWidth: 1
     },
     buttons: {
@@ -312,5 +310,11 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 3,
         paddingLeft: 10
+    },
+    recurrPicker: {
+        height: 30, 
+        width: 300, 
+        color: '#ccc',
+        backgroundColor: '#3C3F43'
     }
 });
