@@ -43,7 +43,7 @@ export default function BackupRestore({ navigation }) {
                     style={styles.button}
                     onPress={() => {
                         if (!isJson(textValue)) {
-                            Alert.alert("Invalid", "Invalid JSON format", [
+                            Alert.alert("Invalid", "Invalid import format.", [
                                 {
                                     text: 'Okay',
                                     onPress: () => { 
@@ -61,11 +61,17 @@ export default function BackupRestore({ navigation }) {
                             {
                                 text: 'Import',
                                 onPress: async () => {
-                                    await importReminders(textValue);
-                                    navigation.navigate(routes.reminderList);
+                                    if (await importReminders(textValue)) {
+                                        navigation.navigate(routes.reminderList);
+                                    }
+                                    else {
+                                        Alert.alert("Invalid", "Unable to import. Please check your import string.", [
+                                            { text: 'Okay', onPress: () => { setTextValue(''); } }
+                                        ], { cancelable: false });
+                                    }                                    
                                 }
                             }
-                        ], { cancelable: false });
+                        ], { cancelable: false }); 
                     }}
                 >
                     <Text style={styles.buttonText}>⚡ Import</Text>

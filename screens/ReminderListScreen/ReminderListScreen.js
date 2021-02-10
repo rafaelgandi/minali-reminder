@@ -118,7 +118,7 @@ export default function ReminderListScreen({ navigation }) {
                     return (
                         <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>                          
                             <TouchableOpacity
-                                style={{ padding: 10, backgroundColor: '#000', marginTop: 80 }}
+                                style={{ padding: 10, backgroundColor: '#000' }}
                                 onPress={() => navigation.navigate(routes.setReminder)}
                             >
                                 <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 15, textAlign: 'center' }}>😴 Set Reminder</Text>
