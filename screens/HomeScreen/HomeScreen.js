@@ -3,8 +3,8 @@ import React, { useEffect, useReducer, useRef, useContext } from 'react';
 import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
-import Sherlock from 'sherlockjs';
-import { storeNewReminder } from '$lib/storage'
+import parse from '$lib/time-parser.js';
+import { storeNewReminder } from '$lib/storage.js'
 import hdate from 'human-date';
 import { Picker } from '@react-native-picker/picker';
 import { schedNotif } from '$lib/notif.js';
@@ -27,7 +27,8 @@ const initialState = {
     parsedReminderDateTime: null,
     infoText: '',
     recurring: null,
-    displayRecentReminder: false
+    displayRecentReminder: false,
+    labelColor: 'labelNormal'
 };
 
 let reminderTextThrottle = null,
@@ -53,7 +54,8 @@ export default function HomeScreen({ navigation }) {
         if (!date) {
             dispatcher({
                 value: {
-                    infoText: 'No reminder date and time set.'
+                    infoText: 'No reminder date and time set.',
+                    labelColor: 'labelBad'
                 }
             });
             return;
@@ -61,7 +63,8 @@ export default function HomeScreen({ navigation }) {
         if (!state.reminderText.trim()) {
             dispatcher({
                 value: {
-                    infoText: 'Please set your reminder first.'
+                    infoText: 'Please set your reminder first.',
+                    labelColor: 'labelBad'
                 }
             });
             return;
@@ -104,11 +107,6 @@ export default function HomeScreen({ navigation }) {
             date = parseText(state.reminderText);
         }
         if (date) {
-            dispatcher({
-                value: {
-                    infoText: `Set for ${hdate.prettyPrint(date, { showTime: true })}`
-                }
-            });
             (async () => {
                 const notificationId = await scheduleNotification(date);
                 await storeNewReminder({
@@ -124,6 +122,7 @@ export default function HomeScreen({ navigation }) {
                         whenText: '',
                         parsedReminderDateTime: null,
                         infoText: `Reminder set for ${(isToday(date)) ? 'today, ' : ''}${hdate.prettyPrint(date, { showTime: true })}`,
+                        labelColor: 'labelGood',
                         recurring: null
                     }
                 });
@@ -135,13 +134,14 @@ export default function HomeScreen({ navigation }) {
 
     function parseText(text, showUnableToParse = true) {
         if (!text.trim()) { return; }
-        let prasedReminder = Sherlock.parse(text);
+        let prasedReminder = parse(text);
         if (prasedReminder.startDate) {
             // console.log(prasedReminder);
             dispatcher({
                 value: {
                     parsedReminderDateTime: prasedReminder.startDate,
-                    infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today, ' : ''}${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`
+                    infoText: `Set for ${(isToday(prasedReminder.startDate)) ? 'today, ' : ''}${hdate.prettyPrint(prasedReminder.startDate, { showTime: true })}`,
+                    labelColor: 'labelNormal'
                 }
             });
             return prasedReminder.startDate;
@@ -150,7 +150,8 @@ export default function HomeScreen({ navigation }) {
             showUnableToParse && dispatcher({
                 value: {
                     parsedReminderDateTime: null,
-                    infoText: 'Unable to determine the time for the reminder.'
+                    infoText: 'Unable to determine the time for the reminder.',
+                    labelColor: 'labelBad'
                 }
             });
 
@@ -170,7 +171,7 @@ export default function HomeScreen({ navigation }) {
                         borderRadius: 3,
                         paddingLeft: 15,
                         paddingRight: 15,
-                        elevation: 8
+                        elevation: 5
                     }}
                     onPress={onSetReminder}
                 >
@@ -242,7 +243,7 @@ export default function HomeScreen({ navigation }) {
                 </Picker>
             </View>
             <View style={styles.dateConfirmerCon}>
-                {state.infoText ? <Text style={styles.dateConfirmerText}>{state.infoText}</Text> : null}
+                {state.infoText ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>{state.infoText}</Text> : null}
             </View>                   
         </MinaliContainer>
     );
@@ -292,7 +293,6 @@ const styles = StyleSheet.create({
     dateConfirmerText: {
         textAlign: 'center',
         color: '#fff',
-        backgroundColor: '#ED864D',
         padding: 3,
         paddingLeft: 8,
         paddingRight: 8,
@@ -316,5 +316,14 @@ const styles = StyleSheet.create({
         width: 300, 
         color: '#ccc',
         backgroundColor: '#3C3F43'
+    },
+    labelGood: {
+        backgroundColor: '#19BE54'
+    },
+    labelBad: {
+        backgroundColor: '#E2817A'
+    },
+    labelNormal: {
+        backgroundColor: '#ED864D'
     }
 });

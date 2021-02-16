@@ -14,16 +14,19 @@ import useNotificationRecievedListener from '$lib/useNotificationRecievedListene
 
 export default function ReminderListScreen({ navigation }) {
     const [reminderList, setReminderList] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const isFocused = useIsFocused();
     useNotificationRecievedListener((notificationId) => {
         navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
     }, isFocused);
     useEffect(() => {
         if (isFocused) {
+            setIsLoading(true);
             setTimeout(() => {
                 (async () => {
                     const storedReminders = await getAllReminders();
                     setReminderList(sortList(storedReminders));
+                    setIsLoading(false);
                 })();
             }, 400);           
         }
@@ -54,10 +57,10 @@ export default function ReminderListScreen({ navigation }) {
 
 
     return (
-        <MinaliContainer>
+        <MinaliContainer isLoading={isLoading}>
             {(() => {
                 if (reminderList === null) {
-                    return (<Text style={[globalStyles.defaultTextColor, styles.secondaryText, { fontStyle: 'italic', padding: 30, textAlign: 'center' }]}>Loading list...</Text>);
+                    return (<Text></Text>);
                 }
                 const now = new Date();
                 if (reminderList.length) {

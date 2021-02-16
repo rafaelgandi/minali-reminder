@@ -10,11 +10,14 @@ import routes from '$lib/routes.js';
 export default function ReminderDetailScreen({ route, navigation }) {
     const { id } = route.params;
     const [reminderDetails, setReminderDetails] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const isFocused = useIsFocused();
     useEffect(() => {
+        setIsLoading(true);
         if (isFocused && id) {
             (async () => {
                 setReminderDetails(await getReminderByNotifId(id));
+                setIsLoading(false);
             })();
         }
     }, [isFocused]);
@@ -29,13 +32,13 @@ export default function ReminderDetailScreen({ route, navigation }) {
     }
 
     return (
-        <MinaliContainer>
+        <MinaliContainer isLoading={isLoading}>
             <View style={styles.bigCon}>
                 <View style={styles.textCon}>
                     {(() => {
-                        if (reminderDetails === false) {
+                        if (isLoading) {
                             return (
-                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontStyle: 'italic' }]}>Loading...</Text>
+                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontStyle: 'italic' }]}>...</Text>
                             );
                         }
                         if (reminderDetails) {

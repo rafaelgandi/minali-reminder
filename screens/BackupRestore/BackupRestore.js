@@ -12,23 +12,27 @@ import useNotificationRecievedListener from '$lib/useNotificationRecievedListene
 export default function BackupRestore({ navigation }) {
     const isFocused = useIsFocused();
     const [textValue, setTextValue] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     useNotificationRecievedListener((notificationId) => {
         navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
     }, isFocused);
     
     useEffect(() => {
         if (isFocused) {
+            setIsLoading(true);
             setTimeout(() => {
                 (async () => {
                     const remindersArr = await getAllReminders(); 
                     const remindersJson = JSON.stringify(remindersArr);
                     setTextValue(remindersJson);
+                    setIsLoading(false);
                 })();
             }, 300);          
         }
     }, [isFocused]);
+
     return (
-        <MinaliContainer>
+        <MinaliContainer isLoading={isLoading}>
             <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 0, width: '70%' }]}>Backup &amp; Import 🎩</Text>
             <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>            
                 <TextInput
