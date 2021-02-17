@@ -13,14 +13,14 @@ function LoadingHeader() {
 const loadingStyles = StyleSheet.create({
     container: {
         position: 'absolute',
+        top: 30,
         backgroundColor: '#54FFC3',
         width: '100%',
         padding: 5,
-        elevation: 8,
-        opacity: 0.5
+        elevation: 8
     },
     text: {
-        color: '#fff', 
+        color: '#3C3F43', 
         textAlign: 'center',
         fontStyle: 'italic',
         fontSize: 10
@@ -32,8 +32,8 @@ export default function MinaliContainer({ children, isLoading }) {
     // See: https://medium.com/@peterpme/taming-react-natives-scrollview-with-flex-144e6ff76c08
     return (
         <SafeAreaView style={[globalStyles.container, { paddingTop: 60 }]}>
-            <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1 }} keyboardShouldPersistTaps="always">
-                {isLoading && <LoadingHeader />}             
+            {isLoading && <LoadingHeader />} 
+            <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1 }} keyboardShouldPersistTaps="always">            
                 {children}
             </ScrollView>
         </SafeAreaView>
