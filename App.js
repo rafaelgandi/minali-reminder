@@ -29,7 +29,7 @@ function MinaliDrawerContent(props) {
     newState.routes = newState.routes.filter((item) => (item.name !== routes.reminderDetail));
     return (
         <DrawerContentScrollView {...props}>
-            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders 🎯</Text>
+            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders</Text>
             <DrawerItemList state={newState} {...rest} />
         </DrawerContentScrollView>
     );

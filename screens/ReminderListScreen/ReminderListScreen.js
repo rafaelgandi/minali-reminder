@@ -66,7 +66,7 @@ export default function ReminderListScreen({ navigation }) {
                 if (reminderList.length) {
                     return (
                         <>
-                            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 30, width: '70%' }]}>Upcoming Reminders 🚀</Text>
+                            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 30, width: '70%' }]}>Upcoming Reminders</Text>
                             {reminderList.map((r) => (
                                 <View
                                     key={r.notificationId}

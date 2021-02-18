@@ -47,7 +47,7 @@ export default function AboutScreen({ navigation }) {
                 >
                     A super minimal reminder app built for you.
                 </Text>
-                <Text style={{ color: '#556064', fontSize: 12, textAlign: 'center', marginTop:20 }}>www.rafaelgandi.com</Text>
+                <Text style={{ color: '#54FFC3', fontSize: 12, textAlign: 'center', marginTop:20 }}>www.rafaelgandi.com</Text>
             </View>
         </MinaliContainer>
     );

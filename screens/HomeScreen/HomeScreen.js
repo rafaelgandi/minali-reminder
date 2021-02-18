@@ -12,6 +12,7 @@ import { isToday } from '$lib/helpers.js';
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import routes from '$lib/routes.js';
 import useNotificationRecieved from '$lib/useNotificationRecieved.js';
+import LottieView from 'lottie-react-native';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -33,20 +34,25 @@ const initialState = {
 
 let reminderTextThrottle = null,
     whenTextThrottle = null,
-    throttleTimeout = 600;
+    throttleTimeout = 600,
+    showKeyboard;
 
 export default function HomeScreen({ navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
     const isFocused = useIsFocused();
     const reminderTextRef = useRef(null);
+    const buttonAnimRef = useRef(null);
     useNotificationRecieved((notificationId) => {
-        isFocused && navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
+        clearTimeout(showKeyboard);
+        isFocused && navigation.navigate(routes.reminderDetail, { id: notificationId, fromNotificationTap: true });
     });
 
     useEffect(() => {
         if (isFocused && reminderTextRef.current) {
             dispatcher({ value: initialState });
-            reminderTextRef.current.focus();
+            showKeyboard = setTimeout(() => {
+                reminderTextRef.current.focus();
+            }, 200);          
         }
     }, [isFocused]);
 
@@ -99,7 +105,18 @@ export default function HomeScreen({ navigation }) {
         return notificationId;
     }
 
+    function playBellAnim() {
+        if (buttonAnimRef.current) {
+            buttonAnimRef.current.reset();
+            buttonAnimRef.current.play();
+            setTimeout(() => {
+                buttonAnimRef.current.reset();
+            }, 2e3);
+        }
+    }
+
     function onSetReminder() {
+        playBellAnim();
         if (!state.reminderText.trim()) { return; }
         let date = parseText(state.whenText);
 
@@ -159,6 +176,8 @@ export default function HomeScreen({ navigation }) {
         }
     }
 
+    // source={require('../AboutScreen/bell.json')}
+
     return (
         <MinaliContainer>
             <View style={{ width: '100%', paddingBottom: 40, marginTop: 20 }}>
@@ -175,7 +194,20 @@ export default function HomeScreen({ navigation }) {
                     }}
                     onPress={onSetReminder}
                 >
-                    <Text style={styles.buttonText}>Save</Text>
+                    <LottieView
+                        ref={animation => {
+                            buttonAnimRef.current = animation;
+                        }}
+                        style={{
+                            width: 50,
+                            height: 50,
+                            position: 'absolute',
+                            top: -2
+                        }}
+                        autoPlay={false}
+                        source={require('./bellWhite.json')}
+                    />
+                    <Text style={[styles.buttonText, {paddingLeft: 30}]}>Save</Text>
                 </TouchableOpacity>
             </View>
 
@@ -244,7 +276,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.dateConfirmerCon}>
                 {state.infoText ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>{state.infoText}</Text> : null}
-            </View>                   
+            </View>
         </MinaliContainer>
     );
 }
@@ -312,8 +344,8 @@ const styles = StyleSheet.create({
         paddingLeft: 10
     },
     recurrPicker: {
-        height: 30, 
-        width: 300, 
+        height: 30,
+        width: 300,
         color: '#ccc',
         backgroundColor: '#3C3F43'
     },

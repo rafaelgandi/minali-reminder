@@ -33,7 +33,7 @@ export default function BackupRestore({ navigation }) {
 
     return (
         <MinaliContainer isLoading={isLoading}>
-            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 0, width: '70%' }]}>Backup &amp; Import 🎩</Text>
+            <Text style={[globalStyles.headerText, { padding: 10, paddingBottom: 0, width: '70%' }]}>Backup &amp; Import</Text>
             <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>            
                 <TextInput
                     style={styles.textArea}
@@ -78,7 +78,7 @@ export default function BackupRestore({ navigation }) {
                         ], { cancelable: false }); 
                     }}
                 >
-                    <Text style={styles.buttonText}>⚡ Import</Text>
+                    <Text style={styles.buttonText}>Import</Text>
                 </TouchableOpacity>
             </View>
         </MinaliContainer>
