@@ -111,7 +111,7 @@ export default function HomeScreen({ navigation }) {
             buttonAnimRef.current.play();
             setTimeout(() => {
                 buttonAnimRef.current.reset();
-            }, 2e3);
+            }, 800);
         }
     }
 
@@ -194,20 +194,22 @@ export default function HomeScreen({ navigation }) {
                     }}
                     onPress={onSetReminder}
                 >
-                    <LottieView
-                        ref={animation => {
-                            buttonAnimRef.current = animation;
-                        }}
-                        style={{
-                            width: 50,
-                            height: 50,
-                            position: 'absolute',
-                            top: -2
-                        }}
-                        autoPlay={false}
-                        source={require('./bellWhite.json')}
-                    />
-                    <Text style={[styles.buttonText, {paddingLeft: 30}]}>Save</Text>
+                    <View style={{flex: 1, flexDirection: 'row'}}>
+                        <LottieView
+                            ref={animation => {
+                                buttonAnimRef.current = animation;
+                            }}
+                            style={{
+                                width: 30,
+                                height: 30
+                            }}
+                            speed={3}
+                            autoPlay={false}
+                            source={require('./bellWhite.json')}
+                            // See: https://github.com/lottie-react-native/lottie-react-native/blob/master/docs/api.md
+                        />
+                        <Text style={[styles.buttonText, {paddingLeft: 5, paddingRight: 5}]}>Save</Text>
+                    </View>                 
                 </TouchableOpacity>
             </View>
 

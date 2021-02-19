@@ -24,21 +24,22 @@ export default function AboutScreen({ navigation }) {
     return (
         <MinaliContainer>
             <View style={[globalStyles.container, { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 }]}>
-            <LottieView
-                ref={animation => {
-                    animRef.current = animation;
-                }}
-                style={{
-                    width: 50,
-                    height: 50,
-                    backgroundColor: '#3C3F43',
-                }}
-                // See: https://stackoverflow.com/questions/50593025/react-native-how-to-add-full-screen-lottie-animation
-                resizeMode="cover" 
-                source={require('./bell.json')}
-                // OR find more Lottie files @ https://lottiefiles.com/featured
-                // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
-            />
+                <LottieView
+                    ref={animation => {
+                        animRef.current = animation;
+                    }}
+                    style={{
+                        width: 50,
+                        height: 50,
+                        backgroundColor: '#3C3F43',
+                    }}
+                    // See: https://stackoverflow.com/questions/50593025/react-native-how-to-add-full-screen-lottie-animation
+                    resizeMode="cover" 
+                    source={require('./bell.json')}
+                    // OR find more Lottie files @ https://lottiefiles.com/featured
+                    // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                />
+                <Text style={{ color: '#54FFC3', fontSize: 12, textAlign: 'center', marginBottom:20 }}>www.rafaelgandi.com</Text>
                 <Text
                     style={[globalStyles.defaultTextColor, {
                         textAlign: 'center',
@@ -47,7 +48,6 @@ export default function AboutScreen({ navigation }) {
                 >
                     A super minimal reminder app built for you.
                 </Text>
-                <Text style={{ color: '#54FFC3', fontSize: 12, textAlign: 'center', marginTop:20 }}>www.rafaelgandi.com</Text>
             </View>
         </MinaliContainer>
     );
