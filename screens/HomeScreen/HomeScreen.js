@@ -37,11 +37,12 @@ let reminderTextThrottle = null,
     throttleTimeout = 600,
     showKeyboard;
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ route, navigation }) {
     const [state, dispatcher] = useReducer(reducer, initialState);
     const isFocused = useIsFocused();
     const reminderTextRef = useRef(null);
     const buttonAnimRef = useRef(null);
+    const { reminderText } = (route.params) ? route.params : {};
     useNotificationRecieved((notificationId) => {
         clearTimeout(showKeyboard);
         isFocused && navigation.navigate(routes.reminderDetail, { id: notificationId, fromNotificationTap: true });
@@ -52,6 +53,10 @@ export default function HomeScreen({ navigation }) {
             dispatcher({ value: initialState });
             showKeyboard = setTimeout(() => {
                 reminderTextRef.current.focus();
+                if (reminderText) {
+                    dispatcher({ value: { reminderText: reminderText } });
+                    navigation.setParams({reminderText: null}); // reset params
+                }
             }, 200);          
         }
     }, [isFocused]);

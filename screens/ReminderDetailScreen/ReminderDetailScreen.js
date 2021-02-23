@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
@@ -31,6 +31,14 @@ export default function ReminderDetailScreen({ route, navigation }) {
         }
     }
 
+    function reSchedule() {
+        if (!reminderDetails.recurring && (new Date()).getTime() >= reminderDetails.dateTime) {
+            navigation.navigate(routes.setReminder, {
+                reminderText: reminderDetails.reminder
+            });
+        }
+    }
+
     return (
         <MinaliContainer isLoading={isLoading}>
             <View style={styles.bigCon}>
@@ -43,7 +51,10 @@ export default function ReminderDetailScreen({ route, navigation }) {
                         }
                         if (reminderDetails) {
                             return (
-                                <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontSize: 30 }]}>{reminderDetails.reminder}</Text>
+                                <TouchableWithoutFeedback onLongPress={reSchedule}> 
+                                    <Text style={[globalStyles.defaultTextColor, { textAlign: 'center', fontSize: 30 }]}>{reminderDetails.reminder}</Text>
+                                </TouchableWithoutFeedback>                              
+
                             );
                         }
                         else {
