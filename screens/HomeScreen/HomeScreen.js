@@ -51,7 +51,6 @@ export default function HomeScreen({ route, navigation }) {
     useEffect(() => {
         if (isFocused && reminderTextRef.current) {
             if (reminderText) {
-                console.log(reminderText);
                 initialState.reminderText = reminderText;
                 navigation.setParams({reminderText: null}); // reset params
             }
