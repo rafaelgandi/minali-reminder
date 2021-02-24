@@ -50,13 +50,17 @@ export default function HomeScreen({ route, navigation }) {
 
     useEffect(() => {
         if (isFocused && reminderTextRef.current) {
+            if (reminderText) {
+                console.log(reminderText);
+                initialState.reminderText = reminderText;
+                navigation.setParams({reminderText: null}); // reset params
+            }
+            else {
+                initialState.reminderText = '';
+            }
             dispatcher({ value: initialState });
             showKeyboard = setTimeout(() => {
                 reminderTextRef.current.focus();
-                if (reminderText) {
-                    dispatcher({ value: { reminderText: reminderText } });
-                    navigation.setParams({reminderText: null}); // reset params
-                }
             }, 200);          
         }
     }, [isFocused]);

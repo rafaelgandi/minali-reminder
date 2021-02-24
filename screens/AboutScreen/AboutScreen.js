@@ -1,11 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { TouchableWithoutFeedback, Text, View, Linking } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
 import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import routes from '$lib/routes.js';
 import useNotificationRecievedListener from '$lib/useNotificationRecievedListener.js';
 import LottieView from 'lottie-react-native';
+
+async function openMyWebsite() {
+    const url = 'https://rafaelgandi.com';
+    const supported = await Linking.canOpenURL(url);    
+    if (supported) {
+        await Linking.openURL(url);
+    }
+}
 
 
 export default function AboutScreen({ navigation }) {
@@ -39,7 +47,9 @@ export default function AboutScreen({ navigation }) {
                     // OR find more Lottie files @ https://lottiefiles.com/featured
                     // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
                 />
-                <Text style={{ color: '#54FFC3', fontSize: 12, textAlign: 'center', marginBottom:20 }}>www.rafaelgandi.com</Text>
+                <TouchableWithoutFeedback onPress={openMyWebsite}>
+                    <Text style={{ color: '#54FFC3', fontSize: 12, textAlign: 'center', marginBottom:20 }}>www.rafaelgandi.com</Text>
+                </TouchableWithoutFeedback>              
                 <Text
                     style={[globalStyles.defaultTextColor, {
                         textAlign: 'center',
