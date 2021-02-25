@@ -71,16 +71,6 @@ export default function ReminderDetailScreen({ route, navigation }) {
                                 return (
                                     <TouchableOpacity
                                         style={styles.button}
-                                        onPress={reSchedule}
-                                    >
-                                        <Text style={styles.buttonText}>Reschedule</Text>
-                                    </TouchableOpacity>
-                                );
-                            }
-                            else {
-                                return (
-                                    <TouchableOpacity
-                                        style={styles.button}
                                         onPress={onSnooze}
                                     >
                                         <Text style={styles.buttonText}>Snooze 10 min</Text>
