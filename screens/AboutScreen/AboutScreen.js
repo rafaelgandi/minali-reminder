@@ -1,3 +1,4 @@
+// LM: 2021-03-04 12:17:20 BIG PROPS TO COL REMINDER!
 import React, { useEffect, useRef } from 'react';
 import { TouchableWithoutFeedback, Text, View, Linking } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';

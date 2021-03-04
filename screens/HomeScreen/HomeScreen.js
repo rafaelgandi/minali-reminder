@@ -34,7 +34,7 @@ const initialState = {
 
 let reminderTextThrottle = null,
     whenTextThrottle = null,
-    throttleTimeout = 600,
+    throttleTimeout = 400,
     showKeyboard;
 
 export default function HomeScreen({ route, navigation }) {
@@ -52,7 +52,7 @@ export default function HomeScreen({ route, navigation }) {
         if (isFocused && reminderTextRef.current) {
             if (reminderText) {
                 initialState.reminderText = reminderText;
-                navigation.setParams({reminderText: null}); // reset params
+                navigation.setParams({ reminderText: null }); // reset params
             }
             else {
                 initialState.reminderText = '';
@@ -60,7 +60,7 @@ export default function HomeScreen({ route, navigation }) {
             dispatcher({ value: initialState });
             showKeyboard = setTimeout(() => {
                 reminderTextRef.current.focus();
-            }, 200);          
+            }, 200);
         }
     }, [isFocused]);
 
@@ -124,14 +124,14 @@ export default function HomeScreen({ route, navigation }) {
     }
 
     function onSetReminder() {
-        playBellAnim();
         if (!state.reminderText.trim()) { return; }
-        let date = parseText(state.whenText);
+        let date = parseText(state.whenText, true);
 
         if (!date) {
             date = parseText(state.reminderText);
         }
         if (date) {
+            playBellAnim();
             (async () => {
                 const notificationId = await scheduleNotification(date);
                 await storeNewReminder({
@@ -153,7 +153,6 @@ export default function HomeScreen({ route, navigation }) {
                 });
                 Keyboard.dismiss();
             })();
-
         }
     }
 
@@ -202,7 +201,7 @@ export default function HomeScreen({ route, navigation }) {
                     }}
                     onPress={onSetReminder}
                 >
-                    <View style={{flex: 1, flexDirection: 'row'}}>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
                         <LottieView
                             ref={animation => {
                                 buttonAnimRef.current = animation;
@@ -214,10 +213,10 @@ export default function HomeScreen({ route, navigation }) {
                             speed={3}
                             autoPlay={false}
                             source={require('./bellWhite.json')}
-                            // See: https://github.com/lottie-react-native/lottie-react-native/blob/master/docs/api.md
+                        // See: https://github.com/lottie-react-native/lottie-react-native/blob/master/docs/api.md
                         />
-                        <Text style={[styles.buttonText, {paddingLeft: 5, paddingRight: 5}]}>Save</Text>
-                    </View>                 
+                        <Text style={[styles.buttonText, { paddingLeft: 5, paddingRight: 5 }]}>Save</Text>
+                    </View>
                 </TouchableOpacity>
             </View>
 
@@ -237,6 +236,15 @@ export default function HomeScreen({ route, navigation }) {
                     }, throttleTimeout);
                 }}
             />
+
+
+            <View>
+                <View style={styles.dateConfirmerCon}>
+                    {state.infoText ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>{state.infoText}</Text> : null}
+                </View>
+            </View>
+
+
             <TextInput
                 style={styles.whenTextInput}
                 placeholder="When?"
@@ -244,7 +252,12 @@ export default function HomeScreen({ route, navigation }) {
                 multiline
                 value={state.whenText}
                 onChangeText={(text) => {
-                    dispatcher({ value: { whenText: text } });
+                    dispatcher({
+                        value: {
+                            whenText: text,
+                            infoText: ''
+                        }
+                    });
                     clearTimeout(whenTextThrottle);
                     whenTextThrottle = setTimeout(() => {
                         if (!text.trim()) {
@@ -256,7 +269,7 @@ export default function HomeScreen({ route, navigation }) {
                             });
                             return;
                         }
-                        parseText(text);
+                        parseText(text, false);
                     }, throttleTimeout);
                 }}
             />
@@ -283,9 +296,6 @@ export default function HomeScreen({ route, navigation }) {
                     <Picker.Item label="Daily" value="daily" />
                     <Picker.Item label="Weekly" value="weekly" />
                 </Picker>
-            </View>
-            <View style={styles.dateConfirmerCon}>
-                {state.infoText ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>{state.infoText}</Text> : null}
             </View>
         </MinaliContainer>
     );
@@ -327,10 +337,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     dateConfirmerCon: {
-        marginTop: 10,
         padding: 3,
         marginLeft: 10,
-        marginRight: 10
+        marginRight: 10,
+        position: 'absolute',
+        top: -8
     },
     dateConfirmerText: {
         textAlign: 'center',
@@ -339,14 +350,8 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
         paddingRight: 8,
         borderRadius: 2,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        elevation: 4
+
+        fontSize: 9
     },
     recurringPickerCon: {
         marginTop: 10,
@@ -360,12 +365,22 @@ const styles = StyleSheet.create({
         backgroundColor: '#3C3F43'
     },
     labelGood: {
-        backgroundColor: '#19BE54'
+        //backgroundColor: '#19BE54'
+
+        backgroundColor: '#F9D943',
+        color: '#C48540'
     },
     labelBad: {
-        backgroundColor: '#E2817A'
+        backgroundColor: '#E2817A',
+        color: '#880E15'
     },
     labelNormal: {
-        backgroundColor: '#ED864D'
+        //backgroundColor: '#ED864D'
+
+        backgroundColor: '#B1ECA4',
+        color: '#33931E'
+
+        // backgroundColor: '#FFCF92',
+        // color: '#C48540'
     }
 });
