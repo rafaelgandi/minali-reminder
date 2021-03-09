@@ -12,6 +12,7 @@ import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailSc
 import BackupRestore from '$screens/BackupRestore/BackupRestore';
 import globalStyles from '$styles/Global.styles.js'
 import routes from '$lib/routes.js';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Drawer = createDrawerNavigator();
 let firstRun = true;
@@ -28,8 +29,10 @@ function MinaliDrawerContent(props) {
     const newState = { ...state };
     newState.routes = newState.routes.filter((item) => (item.name !== routes.reminderDetail));
     return (
-        <DrawerContentScrollView {...props}>
-            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>Minali Reminders</Text>
+        <DrawerContentScrollView {...props}>         
+            <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>                          
+                Minali <FontAwesome name="bell" size={30} color="#54FFC3" /> Reminders                
+            </Text>
             <DrawerItemList state={newState} {...rest} />
         </DrawerContentScrollView>
     );
@@ -69,7 +72,6 @@ export default function App() {
                 <Drawer.Screen options={{ title: 'Reminder List' }} name={routes.reminderList} component={ReminderListScreen} />
                 <Drawer.Screen options={{ title: 'Backup and Import' }} name={routes.backUpRestore} component={BackupRestore} />
                 <Drawer.Screen options={{ title: 'About' }} name={routes.about} component={AboutScreen} />
-
                 <Drawer.Screen options={{ title: 'Reminder Detail' }} name={routes.reminderDetail} component={ReminderDetailScreen} />
             </Drawer.Navigator>
 

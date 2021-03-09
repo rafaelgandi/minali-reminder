@@ -13,6 +13,7 @@ import MinaliContainer from '$components/MinaliContainer/MinaliContainer';
 import routes from '$lib/routes.js';
 import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 import LottieView from 'lottie-react-native';
+import { Entypo } from '@expo/vector-icons';  // See: https://docs.expo.io/guides/icons/
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -103,7 +104,7 @@ export default function HomeScreen({ route, navigation }) {
         // Schedule the notification
         let notificationId = await schedNotif({
             content: {
-                title: "Reminder",
+                title: "🔔 Reminder",
                 body: state.reminderText.trim(),
             },
             trigger
@@ -182,9 +183,6 @@ export default function HomeScreen({ route, navigation }) {
             return;
         }
     }
-
-    // source={require('../AboutScreen/bell.json')}
-
     return (
         <MinaliContainer>
             <View style={{ width: '100%', paddingBottom: 40, marginTop: 20 }}>
@@ -240,7 +238,11 @@ export default function HomeScreen({ route, navigation }) {
 
             <View>
                 <View style={styles.dateConfirmerCon}>
-                    {state.infoText ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>{state.infoText}</Text> : null}
+                    {state.infoText 
+                    ?   <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>
+                            <Entypo name="calendar" size={10} /> {state.infoText}
+                        </Text> 
+                    : null}
                 </View>
             </View>
 
@@ -351,7 +353,7 @@ const styles = StyleSheet.create({
         paddingRight: 8,
         borderRadius: 2,
 
-        fontSize: 9
+        fontSize: 10
     },
     recurringPickerCon: {
         marginTop: 10,
@@ -365,8 +367,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#3C3F43'
     },
     labelGood: {
-        //backgroundColor: '#19BE54'
-
         backgroundColor: '#F9D943',
         color: '#C48540'
     },
@@ -375,12 +375,7 @@ const styles = StyleSheet.create({
         color: '#880E15'
     },
     labelNormal: {
-        //backgroundColor: '#ED864D'
-
         backgroundColor: '#B1ECA4',
         color: '#33931E'
-
-        // backgroundColor: '#FFCF92',
-        // color: '#C48540'
     }
 });

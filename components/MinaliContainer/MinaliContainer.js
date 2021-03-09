@@ -1,7 +1,9 @@
 import React, {useEffect, useRef} from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, Text } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import globalStyles from '$styles/Global.styles.js'; 
 import LottieView from 'lottie-react-native';
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 function LoadingHeader() {
     const animRef = useRef(null);
@@ -21,6 +23,27 @@ function LoadingHeader() {
                 resizeMode="cover" 
                 source={require('./progressbar.json')}
             />
+        </View>
+    );
+}
+
+function DrawerHandle() {
+    const navigation = useNavigation();
+    return (
+        <View style={{
+            position: 'absolute',
+            left: 15,
+            top: 35,
+            opacity: 0.5
+        }}>
+            <TouchableWithoutFeedback 
+                onPress={() => {
+                    Keyboard.dismiss();
+                    navigation.toggleDrawer();
+                }}
+            >
+                <Feather name="menu" size={24} color="#fff" />
+            </TouchableWithoutFeedback>
         </View>
     );
 }
@@ -50,6 +73,7 @@ export default function MinaliContainer({ children, isLoading }) {
     return (
         <SafeAreaView style={[globalStyles.container, { paddingTop: 60 }]}>
             {isLoading && <LoadingHeader />}
+            <DrawerHandle />
             <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1 }} keyboardShouldPersistTaps="always">
                 {children}
             </ScrollView>
