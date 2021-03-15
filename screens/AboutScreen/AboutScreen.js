@@ -10,7 +10,7 @@ import LottieView from 'lottie-react-native';
 
 async function openMyWebsite() {
     const url = 'https://rafaelgandi.com';
-    const supported = await Linking.canOpenURL(url);    
+    const supported = await Linking.canOpenURL(url);     
     if (supported) {
         await Linking.openURL(url);
     }
