@@ -48,6 +48,9 @@ export default function App() {
                 if (! await AsyncStorage.getItem('MinaliReminders@list')) {
                     AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
                 }
+                if (! await AsyncStorage.getItem('MinaliReminders@reminderSuggestions')) {
+                    AsyncStorage.setItem('MinaliReminders@reminderSuggestions', JSON.stringify([]));
+                }
             })();
         }
     }, []);

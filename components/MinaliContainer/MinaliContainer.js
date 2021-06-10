@@ -74,7 +74,11 @@ export default function MinaliContainer({ children, isLoading }) {
         <SafeAreaView style={[globalStyles.container, { paddingTop: 60 }]}>
             {isLoading && <LoadingHeader />}
             <DrawerHandle />
-            <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1 }} keyboardShouldPersistTaps="always">
+            <ScrollView 
+                contentContainerStyle={{ width: '100%', flexGrow: 1 }} 
+                keyboardShouldPersistTaps="always"
+                removeClippedSubviews={false}
+            >
                 {children}
             </ScrollView>
         </SafeAreaView>

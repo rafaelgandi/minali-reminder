@@ -3,6 +3,7 @@ import React, { useEffect, useReducer, useRef, useContext } from 'react';
 import { StyleSheet, Text, View, Keyboard, TextInput, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import globalStyles from '$styles/Global.styles.js'
+import styles from './HomeScreen.styles';
 import parse from '$lib/time-parser.js';
 import { storeNewReminder } from '$lib/storage.js'
 import hdate from 'human-date';
@@ -14,6 +15,8 @@ import routes from '$lib/routes.js';
 import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 import LottieView from 'lottie-react-native';
 import { Entypo } from '@expo/vector-icons';  // See: https://docs.expo.io/guides/icons/
+import Suggestion from '$components/Suggestion/Suggestion';
+import { storeReminderSuggestion, getAllReminderSuggestions } from '$lib/suggestion-objects.js';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -30,7 +33,11 @@ const initialState = {
     infoText: '',
     recurring: null,
     displayRecentReminder: false,
-    labelColor: 'labelNormal'
+    labelColor: 'labelNormal',
+
+    showSuggestion: false,
+    suggestionCompareText: '',
+    suggestionType: null
 };
 
 let reminderTextThrottle = null,
@@ -185,6 +192,38 @@ export default function HomeScreen({ route, navigation }) {
     }
     return (
         <MinaliContainer>
+            <Suggestion
+                show={state.showSuggestion}
+                compareText={state.suggestionCompareText}
+                suggestionType={state.suggestionType}
+                onClose={() => {
+                    dispatcher({
+                        value: {
+                            showSuggestion: false,
+                            suggestionCompareText: '',
+                            suggestionType: null
+                        }
+                    });
+                }}
+                onSelect={(match) => {
+                    if (state.suggestionCompareText === state.reminderText) {
+                        dispatcher({
+                            value: {
+                                reminderText: match
+                            }
+                        });
+                    }
+                    else {
+                        dispatcher({
+                            value: {
+                                whenText: match
+                            }
+                        });
+                    }
+                }}
+            />
+
+            {/* Submit Button */}
             <View style={{ width: '100%', paddingBottom: 40, marginTop: 20 }}>
                 <TouchableOpacity
                     style={{
@@ -218,46 +257,55 @@ export default function HomeScreen({ route, navigation }) {
                 </TouchableOpacity>
             </View>
 
+            {/* Reminder Text */}
             <TextInput
                 style={styles.textArea}
                 placeholder="Remind me about..."
                 placeholderTextColor="#ccc"
+                selectTextOnFocus={true}
                 multiline
                 autoFocus={true}
                 ref={reminderTextRef}
                 value={state.reminderText}
                 onChangeText={(text) => {
-                    dispatcher({ value: { reminderText: text } });
+                    dispatcher({ value: { reminderText: text, showSuggestion: false } });
                     clearTimeout(reminderTextThrottle);
                     reminderTextThrottle = setTimeout(() => {
                         parseText(text, false);
+                        dispatcher({
+                            value: {
+                                showSuggestion: true,
+                                suggestionCompareText: text,
+                                suggestionType: 'reminders'
+                            }
+                        });
                     }, throttleTimeout);
                 }}
             />
 
-
+            {/* When Text */}
             <View>
                 <View style={styles.dateConfirmerCon}>
-                    {state.infoText 
-                    ?   <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>
+                    {state.infoText
+                        ? <Text style={[styles.dateConfirmerText, styles[state.labelColor]]}>
                             <Entypo name="calendar" size={10} /> {state.infoText}
-                        </Text> 
-                    : null}
+                        </Text>
+                        : null}
                 </View>
             </View>
-
-
             <TextInput
                 style={styles.whenTextInput}
                 placeholder="When?"
                 placeholderTextColor="#ccc"
+                selectTextOnFocus={true}
                 multiline
                 value={state.whenText}
                 onChangeText={(text) => {
                     dispatcher({
                         value: {
                             whenText: text,
-                            infoText: ''
+                            infoText: '',
+                            showSuggestion: false
                         }
                     });
                     clearTimeout(whenTextThrottle);
@@ -272,9 +320,18 @@ export default function HomeScreen({ route, navigation }) {
                             return;
                         }
                         parseText(text, false);
+                        dispatcher({
+                            value: {
+                                showSuggestion: true,
+                                suggestionCompareText: text,
+                                suggestionType: 'when'
+                            }
+                        });
                     }, throttleTimeout);
                 }}
             />
+
+            {/* Recurring Select box */}
             <View style={styles.recurringPickerCon}>
                 <Picker
                     selectedValue={(state.recurring) ? state.recurring : '`no_recurring`'}
@@ -302,80 +359,3 @@ export default function HomeScreen({ route, navigation }) {
         </MinaliContainer>
     );
 }
-
-
-const styles = StyleSheet.create({
-    textArea: {
-        minHeight: 50,
-        borderBottomColor: '#ccc',
-        borderBottomWidth: 1,
-        width: '90%',
-        padding: 10,
-        fontSize: 20,
-        margin: 10,
-        color: '#fff'
-    },
-    whenTextInput: {
-        height: 50,
-        width: '90%',
-        padding: 10,
-        fontSize: 20,
-        margin: 10,
-        color: '#fff',
-        borderBottomColor: '#ccc',
-        borderBottomWidth: 1
-    },
-    buttons: {
-        backgroundColor: '#ccc',
-        padding: 15,
-        margin: 10,
-        borderRadius: 3,
-        width: '80%'
-    },
-    buttonText: {
-        fontSize: 20,
-        textAlign: 'center',
-        color: '#fff',
-        fontWeight: 'bold'
-    },
-    dateConfirmerCon: {
-        padding: 3,
-        marginLeft: 10,
-        marginRight: 10,
-        position: 'absolute',
-        top: -8
-    },
-    dateConfirmerText: {
-        textAlign: 'center',
-        color: '#fff',
-        padding: 3,
-        paddingLeft: 8,
-        paddingRight: 8,
-        borderRadius: 2,
-
-        fontSize: 10
-    },
-    recurringPickerCon: {
-        marginTop: 10,
-        padding: 3,
-        paddingLeft: 10
-    },
-    recurrPicker: {
-        height: 30,
-        width: 300,
-        color: '#ccc',
-        backgroundColor: '#3C3F43'
-    },
-    labelGood: {
-        backgroundColor: '#F9D943',
-        color: '#C48540'
-    },
-    labelBad: {
-        backgroundColor: '#E2817A',
-        color: '#880E15'
-    },
-    labelNormal: {
-        backgroundColor: '#B1ECA4',
-        color: '#33931E'
-    }
-});
