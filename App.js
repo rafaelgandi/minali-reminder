@@ -43,12 +43,12 @@ export default function App() {
         if (firstRun) {
             firstRun = false;
             (async () => {
-                await askNotificationPermission();
+                //await askNotificationPermission();
                 setNotifHandler();
-                if (! await AsyncStorage.getItem('MinaliReminders@list')) {
+                if (! (await AsyncStorage.getItem('MinaliReminders@list'))) {
                     AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
                 }
-                if (! await AsyncStorage.getItem('MinaliReminders@reminderSuggestions')) {
+                if (! (await AsyncStorage.getItem('MinaliReminders@reminderSuggestions'))) {
                     AsyncStorage.setItem('MinaliReminders@reminderSuggestions', JSON.stringify([]));
                 }
             })();
