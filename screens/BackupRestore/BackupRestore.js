@@ -7,12 +7,15 @@ import { getAllReminders, importReminders } from '$lib/storage';
 import { isJson } from '$lib/helpers.js';
 import routes from '$lib/routes.js';
 import useNotificationRecievedListener from '$lib/useNotificationRecievedListener.js';
+import { getAllReminderSuggestions } from '$lib/suggestion-objects.js';
+
 
 
 export default function BackupRestore({ navigation }) {
     const isFocused = useIsFocused();
     const [textValue, setTextValue] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [suggetionsSavedCount, setSuggestionsSavedCount] = useState(0);
     useNotificationRecievedListener((notificationId) => {
         navigation.navigate(routes.reminderDetail, {id: notificationId, fromNotificationTap: true});
     }, isFocused);
@@ -24,7 +27,9 @@ export default function BackupRestore({ navigation }) {
                 (async () => {
                     const remindersArr = await getAllReminders(); 
                     const remindersJson = JSON.stringify(remindersArr);
+                    const storedSuggestions = await getAllReminderSuggestions();
                     setTextValue(remindersJson);
+                    setSuggestionsSavedCount(storedSuggestions.length);
                     setIsLoading(false);
                 })();
             }, 300);          
@@ -43,6 +48,9 @@ export default function BackupRestore({ navigation }) {
                         setTextValue(text);
                     }}
                 />
+                <View style={{paddingTop: 2}}>
+                    <Text style={{fontSize: 10, color: '#ccc'}}>There are {suggetionsSavedCount} saved suggestions.</Text>
+                </View>
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => {

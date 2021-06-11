@@ -16,7 +16,7 @@ import useNotificationRecieved from '$lib/useNotificationRecieved.js';
 import LottieView from 'lottie-react-native';
 import { Entypo } from '@expo/vector-icons';  // See: https://docs.expo.io/guides/icons/
 import Suggestion from '$components/Suggestion/Suggestion';
-import { storeReminderSuggestion, getAllReminderSuggestions } from '$lib/suggestion-objects.js';
+import { storeReminderSuggestion } from '$lib/suggestion-objects.js';
 
 function reducer(state, action) {
     if (typeof action.type === 'undefined') {
@@ -149,6 +149,10 @@ export default function HomeScreen({ route, navigation }) {
                     notificationId: notificationId,
                     whenText: state.whenText
                 });
+
+                // LM: 2021-06-11 09:13:08 [Store reminder for later suggestion]
+                storeReminderSuggestion(state.reminderText.trim());
+
                 dispatcher({
                     value: {
                         reminderText: '',
@@ -156,10 +160,16 @@ export default function HomeScreen({ route, navigation }) {
                         parsedReminderDateTime: null,
                         infoText: `Reminder set for ${(isToday(date)) ? 'today, ' : ''}${hdate.prettyPrint(date, { showTime: true })}`,
                         labelColor: 'labelGood',
-                        recurring: null
+                        recurring: null,
+                        showSuggestion: false,
+                        suggestionCompareText: '',
+                        suggestionType: null
                     }
                 });
-                Keyboard.dismiss();
+                setTimeout(() => {
+                    reminderTextRef.current.focus();
+                }, 500);             
+                //Keyboard.dismiss();
             })();
         }
     }
@@ -192,6 +202,7 @@ export default function HomeScreen({ route, navigation }) {
     }
     return (
         <MinaliContainer>
+            {/* Suggestion bubble */}
             <Suggestion
                 show={state.showSuggestion}
                 compareText={state.suggestionCompareText}

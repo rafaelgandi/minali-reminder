@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { askNotificationPermission, setNotifHandler } from '$lib/notif.js';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import HomeScreen from '$screens/HomeScreen/HomeScreen';
@@ -12,7 +12,7 @@ import ReminderDetailScreen from '$screens/ReminderDetailScreen/ReminderDetailSc
 import BackupRestore from '$screens/BackupRestore/BackupRestore';
 import globalStyles from '$styles/Global.styles.js'
 import routes from '$lib/routes.js';
-import { FontAwesome } from '@expo/vector-icons';
+import { cleanOldSuggestions } from '$lib/suggestion-objects.js';
 
 const Drawer = createDrawerNavigator();
 let firstRun = true;
@@ -31,7 +31,7 @@ function MinaliDrawerContent(props) {
     return (
         <DrawerContentScrollView {...props}>         
             <Text style={{ padding: 20, fontWeight: 'bold', fontSize: 30, color: '#fff' }}>                          
-                Minali <FontAwesome name="bell" size={30} color="#54FFC3" /> Reminders                
+                Minali Reminders                
             </Text>
             <DrawerItemList state={newState} {...rest} />
         </DrawerContentScrollView>
@@ -43,7 +43,7 @@ export default function App() {
         if (firstRun) {
             firstRun = false;
             (async () => {
-                //await askNotificationPermission();
+                await askNotificationPermission(); // Ask permission for notification
                 setNotifHandler();
                 if (! (await AsyncStorage.getItem('MinaliReminders@list'))) {
                     AsyncStorage.setItem('MinaliReminders@list', JSON.stringify([]));
@@ -51,6 +51,8 @@ export default function App() {
                 if (! (await AsyncStorage.getItem('MinaliReminders@reminderSuggestions'))) {
                     AsyncStorage.setItem('MinaliReminders@reminderSuggestions', JSON.stringify([]));
                 }
+                // LM: 2021-06-11 09:48:26 [Clean up old saved suggestions]
+                await cleanOldSuggestions();
             })();
         }
     }, []);
